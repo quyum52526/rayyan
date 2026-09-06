@@ -19,6 +19,32 @@ function fileToDataUrl(file: File) {
   });
 }
 
+function compressImage(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const scale = Math.min(1, 800 / image.width, 800 / image.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) {
+        reject(new Error("Unable to create image canvas."));
+        return;
+      }
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/webp", 0.7));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Unable to read image."));
+    };
+    image.src = objectUrl;
+  });
+}
+
 export default function AdminPage() {
   const { products, orders, addProduct, updateProduct, deleteProduct, updateOrderStatus } = useStore();
   const [section, setSection] = useState<"overview" | "products" | "orders">("overview");
@@ -37,7 +63,7 @@ export default function AdminPage() {
     if (!file) return;
     if (file.size > 2_500_000) { setMediaError("ফাইল ২.৫ MB-এর মধ্যে রাখুন।"); return; }
     setMediaError("");
-    updateField(key, await fileToDataUrl(file));
+    updateField(key, key === "video" ? await fileToDataUrl(file) : await compressImage(file));
   };
   const saveProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

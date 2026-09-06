@@ -21,7 +21,7 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
   const assets: GalleryAsset[] = [
     { type: "image", src: frontImage, alt: `${productName} প্যাকেজ`, label: "প্যাকেজ" },
     { type: "image", src: detailImage, alt: `${productName} উপকরণ`, label: "উপকরণ" },
-    { type: "video", src: videoSrc || "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4", alt: `${productName} তৈরির ভিডিও`, label: "ভিডিও" },
+    ...(videoSrc?.trim() ? [{ type: "video" as const, src: videoSrc.trim(), alt: `${productName} তৈরির ভিডিও`, label: "ভিডিও" }] : []),
   ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
@@ -36,7 +36,7 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
     setIsPlaying(false);
     setIsMuted(true);
     setZoomOrigin("50% 50%");
-    if (videoRef.current) videoRef.current.pause();
+    if (videoRef.current) void videoRef.current.pause();
   };
 
   const toggleSound = () => {
@@ -49,8 +49,8 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
   const toggleVideo = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
-      void videoRef.current.play();
-      setIsPlaying(true);
+      if (!activeAsset.src.trim()) return;
+      void videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     } else {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -68,7 +68,7 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
   <span className="gallery-asset-label">{activeAsset.label}</span>
       </div>
       <div className="gallery-thumbnails" role="tablist" aria-label="পণ্যের মিডিয়া">
-        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} দেখুন`} key={asset.label}><img src={asset.src === assets[2].src ? detailImage : asset.src} alt="" />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
+        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} দেখুন`} key={asset.label}><img src={asset.type === "video" ? detailImage : asset.src} alt="" />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
       </div>
     </div>
   );

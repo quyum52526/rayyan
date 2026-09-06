@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { products as seedProducts, type Product } from "@/lib/products";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
@@ -18,6 +18,12 @@ export type CustomerOrder = {
   deliveryFee: number;
   grandTotal: number;
   createdAt: string;
+};
+
+type StoredCartItem = {
+  productId: string;
+  variantId?: string;
+  quantity: number;
 };
 
 type StoreContextValue = {
@@ -49,25 +55,59 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
+function writeStorage<T>(key: string, value: T) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Unable to save ${key} to localStorage.`, error);
+  }
+}
+
+function normalizeCart(value: unknown, availableProducts: Product[]): StoredCartItem[] {
+  if (!Array.isArray(value)) return [];
+  const productIds = new Set(availableProducts.map((product) => String(product.id)));
+  const items = value.flatMap((item) => {
+    if (typeof item !== "object" || item === null) return [];
+    const record = item as Partial<StoredCartItem> & Partial<Product>;
+    const productId = typeof record.productId === "string" ? record.productId : typeof record.id === "number" ? String(record.id) : "";
+    if (!productIds.has(productId)) return [];
+    const quantity = typeof record.quantity === "number" && record.quantity > 0 ? Math.floor(record.quantity) : 1;
+    return [{ productId, ...(record.variantId ? { variantId: record.variantId } : {}), quantity }];
+  });
+  return items.reduce<StoredCartItem[]>((current, item) => {
+    const existing = current.find((entry) => entry.productId === item.productId && entry.variantId === item.variantId);
+    if (existing) existing.quantity += item.quantity;
+    else current.push(item);
+    return current;
+  }, []);
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(seedProducts);
-  const [cart, setCart] = useState<Product[]>([seedProducts[0]]);
+  const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setProducts(readStorage(PRODUCTS_KEY, seedProducts));
-      setCart(readStorage(CART_KEY, [seedProducts[0]]));
+      const activeProducts = readStorage(PRODUCTS_KEY, seedProducts);
+      setProducts(activeProducts);
+      setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
       setOrders(readStorage(ORDERS_KEY, []));
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => { if (hydrated) window.localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products)); }, [hydrated, products]);
-  useEffect(() => { if (hydrated) window.localStorage.setItem(CART_KEY, JSON.stringify(cart)); }, [cart, hydrated]);
-  useEffect(() => { if (hydrated) window.localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)); }, [hydrated, orders]);
+  useEffect(() => { if (hydrated) writeStorage(PRODUCTS_KEY, products); }, [hydrated, products]);
+  useEffect(() => { if (hydrated) writeStorage(CART_KEY, storedCart); }, [hydrated, storedCart]);
+  useEffect(() => { if (hydrated) writeStorage(ORDERS_KEY, orders); }, [hydrated, orders]);
+
+  const cart = useMemo(() => storedCart.flatMap((item) => {
+    const product = products.find((entry) => String(entry.id) === item.productId);
+    return product ? Array.from({ length: item.quantity }, () => product) : [];
+  }), [products, storedCart]);
 
   const value: StoreContextValue = {
     products,
@@ -76,12 +116,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addProduct: (product) => setProducts((current) => [...current, product]),
     updateProduct: (product) => setProducts((current) => current.map((item) => item.id === product.id ? product : item)),
     deleteProduct: (id) => setProducts((current) => current.filter((item) => item.id !== id)),
-    addToCart: (product) => setCart((current) => [...current, product]),
-    removeFromCart: (index) => setCart((current) => current.filter((_, itemIndex) => itemIndex !== index)),
-    clearCart: () => setCart([]),
+    addToCart: (product) => setStoredCart((current) => {
+      const existing = current.find((item) => item.productId === String(product.id));
+      if (existing) return current.map((item) => item === existing ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...current, { productId: String(product.id), quantity: 1 }];
+    }),
+    removeFromCart: (index) => setStoredCart((current) => {
+      let itemIndex = 0;
+      return current.flatMap((item) => {
+        if (index < itemIndex || index >= itemIndex + item.quantity) {
+          itemIndex += item.quantity;
+          return [item];
+        }
+        itemIndex += item.quantity;
+        return item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : [];
+      });
+    }),
+    clearCart: () => setStoredCart([]),
     createOrder: (order) => {
       setOrders((current) => [{ ...order, id: `RY-${Date.now().toString().slice(-6)}`, createdAt: new Date().toISOString(), status: "pending" }, ...current]);
-      setCart([]);
+      setStoredCart([]);
     },
     updateOrderStatus: (id, status) => setOrders((current) => current.map((order) => order.id === id ? { ...order, status } : order)),
   };
