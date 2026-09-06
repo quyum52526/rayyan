@@ -30,9 +30,9 @@ type StoreContextValue = {
   products: Product[];
   cart: Product[];
   orders: CustomerOrder[];
-  addProduct: (product: Product) => void;
-  updateProduct: (product: Product) => void;
-  deleteProduct: (id: number) => void;
+  addProduct: (product: Product) => Promise<void>;
+  updateProduct: (product: Product) => Promise<void>;
+  deleteProduct: (id: number) => Promise<void>;
   addToCart: (product: Product) => void;
   removeFromCart: (index: number) => void;
   clearCart: () => void;
@@ -41,7 +41,6 @@ type StoreContextValue = {
 };
 
 const StoreContext = createContext<StoreContextValue | null>(null);
-const PRODUCTS_KEY = "rayyan-products";
 const CART_KEY = "rayyan-cart";
 const ORDERS_KEY = "rayyan-orders";
 
@@ -90,17 +89,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const activeProducts = readStorage(PRODUCTS_KEY, seedProducts);
-      setProducts(activeProducts);
-      setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
-      setOrders(readStorage(ORDERS_KEY, []));
-      setHydrated(true);
-    }, 0);
-    return () => window.clearTimeout(timer);
+    let active = true;
+    const loadStore = async () => {
+      let activeProducts = seedProducts;
+      try {
+        const response = await fetch("/api/products", { cache: "no-store" });
+        if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
+        activeProducts = await response.json() as Product[];
+        if (active) setProducts(activeProducts);
+      } catch (error) {
+        console.warn("Unable to load products from the server; using the seed catalog.", error);
+      }
+      if (active) {
+        setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
+        setOrders(readStorage(ORDERS_KEY, []));
+        setHydrated(true);
+      }
+    };
+    void loadStore();
+    return () => { active = false; };
   }, []);
 
-  useEffect(() => { if (hydrated) writeStorage(PRODUCTS_KEY, products); }, [hydrated, products]);
   useEffect(() => { if (hydrated) writeStorage(CART_KEY, storedCart); }, [hydrated, storedCart]);
   useEffect(() => { if (hydrated) writeStorage(ORDERS_KEY, orders); }, [hydrated, orders]);
 
@@ -113,9 +122,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     products,
     cart,
     orders,
-    addProduct: (product) => setProducts((current) => [...current, product]),
-    updateProduct: (product) => setProducts((current) => current.map((item) => item.id === product.id ? product : item)),
-    deleteProduct: (id) => setProducts((current) => current.filter((item) => item.id !== id)),
+    addProduct: async (product) => {
+      const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
+      if (!response.ok) throw new Error("Unable to save product.");
+      setProducts(await response.json() as Product[]);
+    },
+    updateProduct: async (product) => {
+      const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
+      if (!response.ok) throw new Error("Unable to save product.");
+      setProducts(await response.json() as Product[]);
+    },
+    deleteProduct: async (id) => {
+      const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Unable to delete product.");
+      setProducts(await response.json() as Product[]);
+    },
     addToCart: (product) => setStoredCart((current) => {
       const existing = current.find((item) => item.productId === String(product.id));
       if (existing) return current.map((item) => item === existing ? { ...item, quantity: item.quantity + 1 } : item);

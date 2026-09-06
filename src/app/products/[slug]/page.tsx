@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import ProductRoute from "@/components/ProductRoute";
-import { getProductBySlug } from "@/lib/products";
+import { getProducts } from "@/lib/product-data";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = (await getProducts()).find((item) => item.slug === slug);
   return { title: product ? `${product.bn} | RAYYAN` : "পণ্য | RAYYAN", description: product?.name };
 }
 
