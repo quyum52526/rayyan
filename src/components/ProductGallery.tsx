@@ -14,13 +14,14 @@ type ProductGalleryProps = {
   productName: string;
   frontImage: string;
   detailImage: string;
+  videoSrc?: string;
 };
 
-export default function ProductGallery({ productName, frontImage, detailImage }: ProductGalleryProps) {
+export default function ProductGallery({ productName, frontImage, detailImage, videoSrc }: ProductGalleryProps) {
   const assets: GalleryAsset[] = [
     { type: "image", src: frontImage, alt: `${productName} প্যাকেজ`, label: "প্যাকেজ" },
     { type: "image", src: detailImage, alt: `${productName} উপকরণ`, label: "উপকরণ" },
-    { type: "video", src: "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4", alt: `${productName} তৈরির ভিডিও`, label: "ভিডিও" },
+    { type: "video", src: videoSrc || "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4", alt: `${productName} তৈরির ভিডিও`, label: "ভিডিও" },
   ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");

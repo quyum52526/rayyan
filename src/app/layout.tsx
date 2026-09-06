@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { StoreProvider } from "@/lib/store";
 
 export const metadata: Metadata = {
   title: "RAYYAN | খাঁটি মসলা ও রেডি-টু-কুক গ্রোসারি",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  return <html lang="bn"><body>{children}</body></html>;
+  return <html lang="bn"><body><StoreProvider>{children}</StoreProvider></body></html>;
 }
