@@ -29,6 +29,7 @@ type StoredCartItem = {
 
 type StoreContextValue = {
   products: Product[];
+  catalogSource: "cloud" | "local";
   cart: Product[];
   orders: CustomerOrder[];
   addProduct: (product: Product) => Promise<"server" | "local">;
@@ -44,6 +45,20 @@ type StoreContextValue = {
 const StoreContext = createContext<StoreContextValue | null>(null);
 const CART_KEY = "rayyan-cart";
 const ORDERS_KEY = "rayyan-orders";
+
+async function fetchCatalog() {
+  const response = await fetch("/api/products", { cache: "no-store" });
+  if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
+  return await response.json() as Product[];
+}
+
+async function cacheCatalog(products: Product[]) {
+  try {
+    await setStoredProducts(products);
+  } catch (error) {
+    console.warn("Unable to cache the product catalog locally.", error);
+  }
+}
 function readStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -80,6 +95,7 @@ function normalizeCart(value: unknown, availableProducts: Product[]): StoredCart
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(seedProducts);
+  const [catalogSource, setCatalogSource] = useState<"cloud" | "local">("cloud");
   const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -88,24 +104,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let active = true;
     const loadStore = async () => {
       let activeProducts = seedProducts;
-      let hasLocalCatalog = false;
       try {
-        const localProducts = await getStoredProducts();
-        if (localProducts) {
-          activeProducts = localProducts;
-          hasLocalCatalog = true;
-        }
+        activeProducts = await fetchCatalog();
+        await cacheCatalog(activeProducts);
+        if (active) setCatalogSource("cloud");
       } catch (error) {
-        console.warn("Unable to read the local product catalog.", error);
-      }
-      if (!hasLocalCatalog) {
+        console.warn("Unable to load products from the API; using the local catalog.", error);
         try {
-          const response = await fetch("/api/products", { cache: "no-store" });
-          if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
-          activeProducts = await response.json() as Product[];
-        } catch (error) {
-          console.warn("Unable to load products from the server; using the seed catalog.", error);
+          activeProducts = await getStoredProducts() || seedProducts;
+        } catch (storageError) {
+          console.warn("Unable to read the local product catalog.", storageError);
         }
+        if (active) setCatalogSource("local");
       }
       if (active) {
         setProducts(activeProducts);
@@ -128,6 +138,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: StoreContextValue = {
     products,
+    catalogSource,
     cart,
     orders,
     addProduct: async (product) => {
@@ -136,15 +147,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean; product: Product };
         if (!payload.success || !payload.product) throw new Error("Invalid product save response.");
-        const nextProducts = products.some((item) => item.id === payload.product.id) ? products.map((item) => item.id === payload.product.id ? payload.product : item) : [...products, payload.product];
+        let nextProducts: Product[];
+        try {
+          nextProducts = await fetchCatalog();
+        } catch {
+          nextProducts = products.some((item) => item.id === payload.product.id) ? products.map((item) => item.id === payload.product.id ? payload.product : item) : [...products, payload.product];
+        }
         setProducts(nextProducts);
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
+        setCatalogSource("cloud");
         return "server";
       } catch (error) {
         console.warn("Unable to save product to the API; saving locally instead.", error);
         const nextProducts = products.some((item) => item.id === product.id) ? products.map((item) => item.id === product.id ? product : item) : [...products, product];
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        setCatalogSource("local");
         return "local";
       }
     },
@@ -154,15 +172,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean; product: Product };
         if (!payload.success || !payload.product) throw new Error("Invalid product update response.");
-        const nextProducts = products.map((item) => item.id === payload.product.id ? payload.product : item);
+        let nextProducts: Product[];
+        try {
+          nextProducts = await fetchCatalog();
+        } catch {
+          nextProducts = products.map((item) => item.id === payload.product.id ? payload.product : item);
+        }
         setProducts(nextProducts);
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
+        setCatalogSource("cloud");
         return "server";
       } catch (error) {
         console.warn("Unable to update product through the API; saving locally instead.", error);
         const nextProducts = products.map((item) => item.id === product.id ? product : item);
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        setCatalogSource("local");
         return "local";
       }
     },
@@ -172,15 +197,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error(`Product delete failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean };
         if (!payload.success) throw new Error("Invalid product delete response.");
-        const nextProducts = products.filter((item) => item.id !== id);
+        let nextProducts: Product[];
+        try {
+          nextProducts = await fetchCatalog();
+        } catch {
+          nextProducts = products.filter((item) => item.id !== id);
+        }
         setProducts(nextProducts);
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
+        setCatalogSource("cloud");
         return "server";
       } catch (error) {
         console.warn("Unable to delete product through the API; deleting locally instead.", error);
         const nextProducts = products.filter((item) => item.id !== id);
-        await setStoredProducts(nextProducts);
+        await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        setCatalogSource("local");
         return "local";
       }
     },
