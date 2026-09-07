@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { products as seedProducts, type Product } from "@/lib/products";
-import { getStoredProducts, setStoredProducts } from "@/lib/product-storage";
+import { getPendingProducts, getStoredProducts, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
 
@@ -30,11 +30,13 @@ type StoredCartItem = {
 type StoreContextValue = {
   products: Product[];
   catalogSource: "cloud" | "local";
+  pendingProducts: Product[];
   cart: Product[];
   orders: CustomerOrder[];
   addProduct: (product: Product) => Promise<"server" | "local">;
   updateProduct: (product: Product) => Promise<"server" | "local">;
   deleteProduct: (id: number) => Promise<"server" | "local">;
+  syncLocalProducts: () => Promise<number>;
   addToCart: (product: Product) => void;
   removeFromCart: (index: number) => void;
   clearCart: () => void;
@@ -97,6 +99,7 @@ function normalizeCart(value: unknown, availableProducts: Product[]): StoredCart
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(seedProducts);
   const [catalogSource, setCatalogSource] = useState<"cloud" | "local">("cloud");
+  const [pendingProducts, setPendingProductsState] = useState<Product[]>([]);
   const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -105,20 +108,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let active = true;
     const loadStore = async () => {
       let activeProducts = seedProducts;
+      let localProducts: Product[] | null = null;
+      try { localProducts = await getStoredProducts(); } catch (error) { console.warn("Unable to read the local product catalog.", error); }
       try {
         activeProducts = await fetchCatalog();
-        await cacheCatalog(activeProducts);
+        const queuedProducts = await getPendingProducts();
+        const cloudIds = new Set(activeProducts.map((product) => product.id));
+        const legacyLocalProducts = (localProducts || []).filter((product) => !cloudIds.has(product.id));
+        const pending = [...queuedProducts, ...legacyLocalProducts.filter((product) => !queuedProducts.some((queued) => queued.id === product.id))];
+        if (pending.length > 0) {
+          await setPendingProducts(pending);
+          activeProducts = [...activeProducts, ...pending];
+        } else {
+          await cacheCatalog(activeProducts);
+        }
         if (active) setCatalogSource("cloud");
       } catch (error) {
         console.warn("Unable to load products from the API; using the local catalog.", error);
-        try {
-          activeProducts = await getStoredProducts() || seedProducts;
-        } catch (storageError) {
-          console.warn("Unable to read the local product catalog.", storageError);
-        }
+        activeProducts = localProducts || seedProducts;
         if (active) setCatalogSource("local");
       }
       if (active) {
+        try {
+          const pending = await getPendingProducts();
+          setPendingProductsState(pending);
+          const cloudIds = new Set(activeProducts.map((product) => product.id));
+          activeProducts = [...activeProducts, ...pending.filter((product) => !cloudIds.has(product.id))];
+        } catch (error) {
+          console.warn("Unable to read pending local products.", error);
+        }
         setProducts(activeProducts);
         setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
         setOrders(readStorage(ORDERS_KEY, []));
@@ -140,6 +158,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value: StoreContextValue = {
     products,
     catalogSource,
+    pendingProducts,
     cart,
     orders,
     addProduct: async (product) => {
@@ -151,6 +170,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const nextProducts = payload.products;
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
+        const pending = await getPendingProducts();
+        await setPendingProducts(pending.filter((item) => item.id !== product.id));
+        setPendingProductsState(pending.filter((item) => item.id !== product.id));
         setCatalogSource("cloud");
         return "server";
       } catch (error) {
@@ -158,6 +180,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const nextProducts = products.some((item) => item.id === product.id) ? products.map((item) => item.id === product.id ? product : item) : [...products, product];
         await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        const pending = await getPendingProducts();
+        const nextPending = pending.some((item) => item.id === product.id) ? pending.map((item) => item.id === product.id ? product : item) : [...pending, product];
+        await setPendingProducts(nextPending);
+        setPendingProductsState(nextPending);
         setCatalogSource("local");
         return "local";
       }
@@ -171,6 +197,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const nextProducts = payload.products;
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
+        const pending = await getPendingProducts();
+        await setPendingProducts(pending.filter((item) => item.id !== product.id));
+        setPendingProductsState(pending.filter((item) => item.id !== product.id));
         setCatalogSource("cloud");
         return "server";
       } catch (error) {
@@ -178,6 +207,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const nextProducts = products.map((item) => item.id === product.id ? product : item);
         await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        const pending = await getPendingProducts();
+        const nextPending = pending.some((item) => item.id === product.id) ? pending.map((item) => item.id === product.id ? product : item) : [...pending, product];
+        await setPendingProducts(nextPending);
+        setPendingProductsState(nextPending);
         setCatalogSource("local");
         return "local";
       }
@@ -196,6 +229,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
+        const pending = await getPendingProducts();
+        await setPendingProducts(pending.filter((item) => item.id !== id));
+        setPendingProductsState(pending.filter((item) => item.id !== id));
         setCatalogSource("cloud");
         return "server";
       } catch (error) {
@@ -203,9 +239,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const nextProducts = products.filter((item) => item.id !== id);
         await cacheCatalog(nextProducts);
         setProducts(nextProducts);
+        const pending = await getPendingProducts();
+        const nextPending = pending.filter((item) => item.id !== id);
+        await setPendingProducts(nextPending);
+        setPendingProductsState(nextPending);
         setCatalogSource("local");
         return "local";
       }
+    },
+    syncLocalProducts: async () => {
+      const pending = await getPendingProducts();
+      let synced = 0;
+      let syncedProducts = products;
+      for (const product of pending) {
+        const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
+        if (!response.ok) throw new Error(`Product sync failed with ${response.status}.`);
+        const payload = await response.json() as { success: boolean; products: Product[] };
+        if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product sync response.");
+        syncedProducts = payload.products;
+        setProducts(syncedProducts);
+        synced += 1;
+        const remaining = pending.slice(synced);
+        await setPendingProducts(remaining);
+        setPendingProductsState(remaining);
+      }
+      setCatalogSource("cloud");
+      await cacheCatalog(syncedProducts);
+      return synced;
     },
     addToCart: (product) => setStoredCart((current) => {
       const existing = current.find((item) => item.productId === String(product.id));
