@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { getProducts, saveProducts } from "@/lib/product-data";
 import type { Product } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 function isDataImage(value: string) {
   return /^data:image\/[a-z0-9.+-]+;base64,/i.test(value);
@@ -15,14 +17,15 @@ async function uploadDataImage(value: string, productId: number, field: "image" 
   const [, contentType, encoded] = match;
   const extension = contentType.split("/")[1].replace("jpeg", "jpg");
   const { put } = await import("@vercel/blob");
-  const blob = await put(`catalog/images/${productId}-${field}.${extension}`, Buffer.from(encoded, "base64"), { access: "public", addRandomSuffix: false, contentType });
+  const blob = await put(`catalog/images/${productId}-${field}-${randomUUID()}.${extension}`, Buffer.from(encoded, "base64"), { access: "public", addRandomSuffix: false, contentType, token: process.env.BLOB_READ_WRITE_TOKEN });
   return blob.url;
 }
 
 export async function GET() {
   try {
     return NextResponse.json(await getProducts(), { headers: { "Cache-Control": "no-store" } });
-  } catch {
+  } catch (error) {
+    console.error("Blob read error:", error);
     return NextResponse.json({ error: "Catalog unavailable." }, { status: 503 });
   }
 }
@@ -39,12 +42,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid product." }, { status: 400 });
     }
     const products = await getProducts();
-    const nextProducts = products.some((item) => item.id === product.id)
+    const updatedProducts = products.some((item) => item.id === product.id)
       ? products.map((item) => item.id === product.id ? product : item)
       : [...products, product];
-    await saveProducts(nextProducts);
-    return NextResponse.json({ success: true, product }, { status: 201 });
-  } catch {
+    await saveProducts(updatedProducts);
+    return NextResponse.json({ success: true, products: updatedProducts }, { status: 201 });
+  } catch (error) {
+    console.error("Blob write error:", error);
     return NextResponse.json({ error: "Catalog could not be saved." }, { status: 503 });
   }
 }
@@ -56,7 +60,8 @@ export async function DELETE(request: Request) {
     const nextProducts = (await getProducts()).filter((product) => product.id !== id);
     await saveProducts(nextProducts);
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    console.error("Blob delete error:", error);
     return NextResponse.json({ error: "Catalog could not be saved." }, { status: 503 });
   }
 }

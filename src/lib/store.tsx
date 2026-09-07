@@ -49,7 +49,8 @@ const ORDERS_KEY = "rayyan-orders";
 async function fetchCatalog() {
   const response = await fetch("/api/products", { cache: "no-store" });
   if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
-  return await response.json() as Product[];
+  const payload = await response.json() as Product[] | { products: Product[] };
+  return Array.isArray(payload) ? payload : payload.products;
 }
 
 async function cacheCatalog(products: Product[]) {
@@ -145,14 +146,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
-        const payload = await response.json() as { success: boolean; product: Product };
-        if (!payload.success || !payload.product) throw new Error("Invalid product save response.");
-        let nextProducts: Product[];
-        try {
-          nextProducts = await fetchCatalog();
-        } catch {
-          nextProducts = products.some((item) => item.id === payload.product.id) ? products.map((item) => item.id === payload.product.id ? payload.product : item) : [...products, payload.product];
-        }
+        const payload = await response.json() as { success: boolean; products: Product[] };
+        if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product save response.");
+        const nextProducts = payload.products;
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
         setCatalogSource("cloud");
@@ -170,14 +166,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
-        const payload = await response.json() as { success: boolean; product: Product };
-        if (!payload.success || !payload.product) throw new Error("Invalid product update response.");
-        let nextProducts: Product[];
-        try {
-          nextProducts = await fetchCatalog();
-        } catch {
-          nextProducts = products.map((item) => item.id === payload.product.id ? payload.product : item);
-        }
+        const payload = await response.json() as { success: boolean; products: Product[] };
+        if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product update response.");
+        const nextProducts = payload.products;
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
         setCatalogSource("cloud");

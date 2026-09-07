@@ -29,7 +29,7 @@ export async function saveProducts(nextProducts: Product[]) {
   const content = JSON.stringify(nextProducts, null, 2);
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { put } = await import("@vercel/blob");
-    await put(catalogBlobPath, content, { access: "public", addRandomSuffix: false, contentType: "application/json" });
+    await put(catalogBlobPath, content, { access: "public", addRandomSuffix: false, contentType: "application/json", token: process.env.BLOB_READ_WRITE_TOKEN });
     return nextProducts;
   }
   if (process.env.VERCEL) throw new Error("BLOB_READ_WRITE_TOKEN is required for catalog writes on Vercel.");
