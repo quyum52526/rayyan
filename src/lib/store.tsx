@@ -37,6 +37,7 @@ type StoreContextValue = {
   updateProduct: (product: Product) => Promise<"server" | "local">;
   deleteProduct: (id: number) => Promise<"server" | "local">;
   syncLocalProducts: () => Promise<number>;
+  syncProgress: { current: number; total: number } | null;
   addToCart: (product: Product) => void;
   removeFromCart: (index: number) => void;
   clearCart: () => void;
@@ -100,6 +101,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(seedProducts);
   const [catalogSource, setCatalogSource] = useState<"cloud" | "local">("cloud");
   const [pendingProducts, setPendingProductsState] = useState<Product[]>([]);
+  const [syncProgress, setSyncProgress] = useState<{ current: number; total: number } | null>(null);
   const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -159,6 +161,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     products,
     catalogSource,
     pendingProducts,
+    syncProgress,
     cart,
     orders,
     addProduct: async (product) => {
@@ -251,21 +254,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const pending = await getPendingProducts();
       let synced = 0;
       let syncedProducts = products;
-      for (const product of pending) {
-        const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
-        if (!response.ok) throw new Error(`Product sync failed with ${response.status}.`);
-        const payload = await response.json() as { success: boolean; products: Product[] };
-        if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product sync response.");
-        syncedProducts = payload.products;
-        setProducts(syncedProducts);
-        synced += 1;
-        const remaining = pending.slice(synced);
-        await setPendingProducts(remaining);
-        setPendingProductsState(remaining);
+      setSyncProgress({ current: 0, total: pending.length });
+      try {
+        for (const product of pending) {
+          const uploadedProduct = { ...product };
+          for (const field of ["image", "image2"] as const) {
+            const value = uploadedProduct[field];
+            if (!value?.startsWith("data:image/")) continue;
+            const uploadResponse = await fetch("/api/upload", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ data: value, filename: `${product.id}-${field}` }),
+            });
+            if (!uploadResponse.ok) throw new Error(`Image upload failed with ${uploadResponse.status}.`);
+            const uploadResult = await uploadResponse.json() as { success: boolean; url: string };
+            if (!uploadResult.success || !uploadResult.url) throw new Error("Invalid image upload response.");
+            uploadedProduct[field] = uploadResult.url;
+          }
+          const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(uploadedProduct) });
+          if (!response.ok) throw new Error(`Product sync failed with ${response.status}.`);
+          const payload = await response.json() as { success: boolean; products: Product[] };
+          if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product sync response.");
+          syncedProducts = payload.products;
+          setProducts(syncedProducts);
+          synced += 1;
+          const remaining = pending.slice(synced);
+          await setPendingProducts(remaining);
+          setPendingProductsState(remaining);
+          setSyncProgress({ current: synced, total: pending.length });
+        }
+        setCatalogSource("cloud");
+        await cacheCatalog(syncedProducts);
+        return synced;
+      } finally {
+        setSyncProgress(null);
       }
-      setCatalogSource("cloud");
-      await cacheCatalog(syncedProducts);
-      return synced;
     },
     addToCart: (product) => setStoredCart((current) => {
       const existing = current.find((item) => item.productId === String(product.id));
