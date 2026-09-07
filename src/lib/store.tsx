@@ -134,7 +134,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
-        const nextProducts = await response.json() as Product[];
+        const payload = await response.json() as { success: boolean; product: Product };
+        if (!payload.success || !payload.product) throw new Error("Invalid product save response.");
+        const nextProducts = products.some((item) => item.id === payload.product.id) ? products.map((item) => item.id === payload.product.id ? payload.product : item) : [...products, payload.product];
         setProducts(nextProducts);
         await setStoredProducts(nextProducts);
         return "server";
@@ -150,7 +152,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
-        const nextProducts = await response.json() as Product[];
+        const payload = await response.json() as { success: boolean; product: Product };
+        if (!payload.success || !payload.product) throw new Error("Invalid product update response.");
+        const nextProducts = products.map((item) => item.id === payload.product.id ? payload.product : item);
         setProducts(nextProducts);
         await setStoredProducts(nextProducts);
         return "server";
@@ -166,7 +170,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
         if (!response.ok) throw new Error(`Product delete failed with ${response.status}.`);
-        const nextProducts = await response.json() as Product[];
+        const payload = await response.json() as { success: boolean };
+        if (!payload.success) throw new Error("Invalid product delete response.");
+        const nextProducts = products.filter((item) => item.id !== id);
         setProducts(nextProducts);
         await setStoredProducts(nextProducts);
         return "server";

@@ -3,7 +3,7 @@ import path from "node:path";
 import { products as seedProducts, type Product } from "@/lib/products";
 
 const localCatalogPath = path.join(process.cwd(), "src/data/products.json");
-const blobPath = "rayyan/products.json";
+const catalogBlobPath = "catalog/products.json";
 
 async function readLocalProducts() {
   try {
@@ -16,7 +16,7 @@ async function readLocalProducts() {
 export async function getProducts() {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { list } = await import("@vercel/blob");
-    const blobs = await list({ prefix: blobPath, limit: 1 });
+    const blobs = await list({ prefix: catalogBlobPath, limit: 1 });
     if (blobs.blobs[0]) {
       const response = await fetch(blobs.blobs[0].url, { cache: "no-store" });
       if (response.ok) return await response.json() as Product[];
@@ -29,7 +29,7 @@ export async function saveProducts(nextProducts: Product[]) {
   const content = JSON.stringify(nextProducts, null, 2);
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { put } = await import("@vercel/blob");
-    await put(blobPath, content, { access: "public", addRandomSuffix: false, contentType: "application/json" });
+    await put(catalogBlobPath, content, { access: "public", addRandomSuffix: false, contentType: "application/json" });
     return nextProducts;
   }
   if (process.env.VERCEL) throw new Error("BLOB_READ_WRITE_TOKEN is required for catalog writes on Vercel.");
