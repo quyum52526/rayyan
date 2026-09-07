@@ -6,6 +6,7 @@ import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import { useStore } from "@/lib/store";
+import { useLanguage } from "@/context/LanguageContext";
 import type { Product } from "@/lib/products";
 
 const categories = [
@@ -15,17 +16,18 @@ const categories = [
   { label: "প্রিমিয়াম কম্বো", count: "৮টি পণ্য", slug: "combos", image: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=800&q=85", alt: "প্রিমিয়াম মসলা কম্বো" },
 ];
 
-const heroSlides = [
-  { title: "শতভাগ খাঁটি গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", href: "/category/powder-spices", theme: "powder", image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=1100&q=85", alt: "খাঁটি গুঁড়া মসলা" },
-  { title: "বাছাইকৃত প্রিমিয়াম গোটা মসলা", subtitle: "আসল এলাচ, দারুচিনি ও লবঙ্গের তীব্র সুবাস", badge: "হাতে বাছাইকৃত", button: "গোটা মসলা দেখুন", href: "/category/whole-spices", theme: "whole", image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1100&q=85", alt: "বাছাইকৃত গোটা মসলা" },
-  { title: "ধোয়া ও কাটা রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", href: "/category/ready-to-cook", theme: "fresh", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1100&q=85", alt: "রেডি-টু-কুক তাজা সবজি" },
-  { title: "মাসিক বাজার স্পেশাল কম্বো প্যাক", subtitle: "প্রয়োজনীয় মসলা ও রান্নার প্যাকেজে সর্বোচ্চ ২৫% পর্যন্ত সাশ্রয়", badge: "স্পেশাল অফার", button: "কম্বো প্যাক দেখুন", href: "/category/combos", theme: "combo", image: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=1100&q=85", alt: "প্রিমিয়াম রান্নাঘর কম্বো" },
+const heroSlideMeta = [
+  { href: "/category/powder-spices", theme: "powder", image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=1100&q=85" },
+  { href: "/category/whole-spices", theme: "whole", image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1100&q=85" },
+  { href: "/category/ready-to-cook", theme: "fresh", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1100&q=85" },
+  { href: "/category/combos", theme: "combo", image: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=1100&q=85" },
 ];
 
 function formatPrice(value: number) { return `৳${value.toLocaleString("en-IN")}`; }
 
 export default function Home() {
   const { products, cart, addToCart, removeFromCart } = useStore();
+  const { language, toggleLanguage, t } = useLanguage();
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -35,33 +37,33 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isHeroHovered, setIsHeroHovered] = useState(false);
   const touchStartX = useRef<number | null>(null);
-  const slide = heroSlides[activeSlide];
+  const slide = { ...t.hero.slides[activeSlide], ...heroSlideMeta[activeSlide] };
   const filteredProducts = useMemo(() => products.filter((product) => `${product.name} ${product.bn} ${product.category}`.toLowerCase().includes(search.toLowerCase())), [products, search]);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const freeDeliveryProgress = Math.min((total / 1000) * 100, 100);
   const addProductToCart = (product: Product) => { addToCart(product); setCartOpen(true); };
-  const moveSlide = (direction: 1 | -1) => setActiveSlide((current) => (current + direction + heroSlides.length) % heroSlides.length);
+  const moveSlide = (direction: 1 | -1) => setActiveSlide((current) => (current + direction + heroSlideMeta.length) % heroSlideMeta.length);
 
   useEffect(() => {
     if (isHeroHovered) return;
-    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % heroSlides.length), 5000);
+    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % heroSlideMeta.length), 5000);
     return () => window.clearInterval(timer);
   }, [isHeroHovered]);
 
   return (
     <main>
-      <div className="topbar"><div className="container topbar-inner"><span><Truck size={15} /> ঢাকার ভিতরে ২৪–৪৮ ঘণ্টায় ক্যাশ অন ডেলিভারি</span><span className="topbar-note">সারা দেশে ডেলিভারি <b>৳৬০ থেকে</b></span></div></div>
+      <div className="topbar"><div className="container topbar-inner"><span><Truck size={15} /> {t.topbar.delivery}</span><span className="topbar-note">{t.topbar.nationwide} <b>{t.topbar.from}</b></span></div></div>
       <header className="site-header"><div className="container header-inner">
-        <button className="mobile-menu" aria-label="মেনু"><SlidersHorizontal size={22} /></button>
-        <a className="logo" href="#top">RAYYAN<span>রসনায় বিশুদ্ধতা</span></a>
-        <nav className="desktop-nav"><a href="#products">সব পণ্য</a><a href="#categories">ক্যাটাগরি <ChevronDown size={14} /></a><a href="#story">আমাদের গল্প</a></nav>
-        <div className="header-actions"><div className="search-box"><Search size={18} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="মসলা বা পণ্য খুঁজুন..." aria-label="পণ্য খুঁজুন" /></div><button className="icon-button wishlist-button" aria-label="উইশলিস্ট"><Heart size={21} /><span>{liked.length}</span></button><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingBag size={19} /><span>কার্ট</span><b>{cart.length}</b></button></div>
+        <button className="mobile-menu" aria-label={t.nav.menu}><SlidersHorizontal size={22} /></button>
+        <a className="logo" href="#top">RAYYAN<span>{t.nav.tagline}</span></a>
+        <nav className="desktop-nav"><a href="#products">{t.nav.products}</a><a href="#categories">{t.nav.categories} <ChevronDown size={14} /></a><a href="#story">{t.nav.story}</a></nav>
+        <div className="header-actions"><div className="search-box"><Search size={18} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.nav.search} aria-label={t.nav.search} /></div><button className="icon-button wishlist-button" aria-label={t.nav.wishlist}><Heart size={21} /><span>{liked.length}</span></button><button className="language-button" onClick={toggleLanguage} aria-label={t.nav.language}>{language === "bn" ? "EN" : "বাং"}</button><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingBag size={19} /><span>{t.nav.cart}</span><b>{cart.length}</b></button></div>
       </div></header>
 
       <section className={`hero hero-carousel hero-${slide.theme}`} id="top" onMouseEnter={() => setIsHeroHovered(true)} onMouseLeave={() => setIsHeroHovered(false)} onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX; }} onTouchEnd={(event) => { if (touchStartX.current === null) return; const distance = event.changedTouches[0].clientX - touchStartX.current; if (Math.abs(distance) > 45) moveSlide(distance < 0 ? 1 : -1); touchStartX.current = null; }}>
-        <div className="container carousel-inner"><div className="hero-copy carousel-copy"><div className="eyebrow"><Sparkles size={14} /> {slide.badge}</div><h1>{slide.title}</h1><p>{slide.subtitle}</p><div className="hero-actions"><a className="primary-button" href={slide.href}>{slide.button} <ArrowRight size={17} /></a><a className="text-link" href="#categories">ক্যাটাগরি দেখুন <ChevronRight size={16} /></a></div><div className="hero-proof"><div className="avatar-stack"><span>স</span><span>ম</span><span>আ</span><span>+</span></div><div><strong>৫,০০০+ পরিবার</strong><small>প্রতিদিন RAYYAN বেছে নেয়</small></div></div></div><div className="hero-art"><div className="hero-art-label"><span>RAYYAN নির্বাচন</span><b>০{activeSlide + 1}</b></div><div className="hero-dish"><img key={slide.image} src={slide.image} alt={slide.alt} /></div><div className="hero-stamp"><span>PURE</span><strong>{activeSlide === 2 ? "FRESH" : "খাঁটি"}</strong><span>EST. 2024</span></div><div className="hero-leaf leaf-one">✦</div><div className="hero-leaf leaf-two">✽</div></div></div>
-        <button className="carousel-arrow carousel-prev" onClick={() => moveSlide(-1)} aria-label="আগের স্লাইড"><ChevronRight size={22} /></button><button className="carousel-arrow carousel-next" onClick={() => moveSlide(1)} aria-label="পরের স্লাইড"><ChevronRight size={22} /></button>
-        <div className="carousel-controls" role="tablist" aria-label="হিরো স্লাইড নির্বাচন">{heroSlides.map((item, index) => <button className={`carousel-dot ${index === activeSlide ? "active" : ""}`} key={item.title} onClick={() => setActiveSlide(index)} role="tab" aria-selected={index === activeSlide} aria-label={`${index + 1} নম্বর স্লাইড`}><span /></button>)}</div>
+        <div className="container carousel-inner"><div className="hero-copy carousel-copy"><div className="eyebrow"><Sparkles size={14} /> {slide.badge}</div><h1>{slide.title}</h1><p>{slide.subtitle}</p><div className="hero-actions"><a className="primary-button" href={slide.href}>{slide.button} <ArrowRight size={17} /></a><a className="text-link" href="#categories">{t.hero.categories} <ChevronRight size={16} /></a></div><div className="hero-proof"><div className="avatar-stack"><span>স</span><span>ম</span><span>আ</span><span>+</span></div><div><strong>{t.hero.families}</strong><small>{t.hero.familiesNote}</small></div></div></div><div className="hero-art"><div className="hero-art-label"><span>RAYYAN</span><b>০{activeSlide + 1}</b></div><div className="hero-dish"><img key={slide.image} src={slide.image} alt={slide.alt} /></div><div className="hero-stamp"><span>PURE</span><strong>{activeSlide === 2 ? t.hero.fresh : t.hero.pure}</strong><span>EST. 2024</span></div><div className="hero-leaf leaf-one">✦</div><div className="hero-leaf leaf-two">✽</div></div></div>
+        <button className="carousel-arrow carousel-prev" onClick={() => moveSlide(-1)} aria-label={t.hero.previous}><ChevronRight size={22} /></button><button className="carousel-arrow carousel-next" onClick={() => moveSlide(1)} aria-label={t.hero.next}><ChevronRight size={22} /></button>
+        <div className="carousel-controls" role="tablist" aria-label={t.hero.select}>{t.hero.slides.map((item, index) => <button className={`carousel-dot ${index === activeSlide ? "active" : ""}`} key={item.title} onClick={() => setActiveSlide(index)} role="tab" aria-selected={index === activeSlide} aria-label={`${index + 1} ${t.hero.slide}`}><span /></button>)}</div>
       </section>
 
       <section className="trust-strip"><div className="container trust-grid"><div><span className="trust-icon">✦</span><span><b>১০০% খাঁটি</b><small>বিশুদ্ধতার নিশ্চয়তা</small></span></div><div><span className="trust-icon">♧</span><span><b>ক্যামিক্যাল মুক্ত</b><small>নিরাপদ, প্রাকৃতিক খাবার</small></span></div><div><span className="trust-icon">❋</span><span><b>ভ্যাকুয়াম প্যাকড</b><small>ফ্রেশ থাকুক বেশি সময়</small></span></div><div><span className="trust-icon">৳</span><span><b>ক্যাশ অন ডেলিভারি</b><small>পণ্য হাতে, তারপর পেমেন্ট</small></span></div></div></section>

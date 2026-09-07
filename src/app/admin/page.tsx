@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "@/lib/products";
 import { useStore, type OrderStatus } from "@/lib/store";
+import { compressImage } from "@/lib/compressImage";
 
 const categories = ["গুঁড়া মসলা", "গোটা মসলা", "রেডি-টু-কুক", "প্রিমিয়াম কম্বো"];
 const emptyForm = { name: "", bn: "", category: categories[0], price: "", oldPrice: "", stock: "", sku: "", image: "", image2: "", video: "" };
@@ -19,40 +20,15 @@ function fileToDataUrl(file: File) {
   });
 }
 
-function compressImage(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const scale = Math.min(1, 800 / image.width, 800 / image.height);
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(image.width * scale));
-      canvas.height = Math.max(1, Math.round(image.height * scale));
-      const context = canvas.getContext("2d");
-      if (!context) {
-        reject(new Error("Unable to create image canvas."));
-        return;
-      }
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/webp", 0.7));
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Unable to read image."));
-    };
-    image.src = objectUrl;
-  });
-}
-
 export default function AdminPage() {
-  const { products, orders, addProduct, updateProduct, deleteProduct, updateOrderStatus } = useStore();
+  const { products, orders, storageError, addProduct, updateProduct, deleteProduct, updateOrderStatus } = useStore();
   const [section, setSection] = useState<"overview" | "products" | "orders">("overview");
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [mediaError, setMediaError] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const mediaError = uploadError || storageError;
 
-  const openNew = () => { setEditing(null); setForm(emptyForm); setMediaError(""); setSection("products"); };
+  const openNew = () => { setEditing(null); setForm(emptyForm); setUploadError(""); setSection("products"); };
   const openEdit = (product: Product) => {
     setEditing(product);
     setForm({ name: product.name, bn: product.bn, category: product.category, price: String(product.price), oldPrice: String(product.oldPrice), stock: String(product.stock), sku: product.sku || "", image: product.image, image2: product.image2 || "", video: product.video || "" });
@@ -61,9 +37,13 @@ export default function AdminPage() {
   const updateField = (key: keyof FormState, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const handleFile = async (key: "image" | "image2" | "video", file?: File) => {
     if (!file) return;
-    if (file.size > 2_500_000) { setMediaError("ফাইল ২.৫ MB-এর মধ্যে রাখুন।"); return; }
-    setMediaError("");
-    updateField(key, key === "video" ? await fileToDataUrl(file) : await compressImage(file));
+    if (file.size > 2_500_000) { setUploadError("ফাইল ২.৫ MB-এর মধ্যে রাখুন।"); return; }
+    setUploadError("");
+    try {
+      updateField(key, key === "video" ? await fileToDataUrl(file) : await compressImage(file));
+    } catch {
+      setUploadError("ফাইলটি পড়া যায়নি। অন্য একটি ছবি দিয়ে আবার চেষ্টা করুন।");
+    }
   };
   const saveProduct = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,9 +51,9 @@ export default function AdminPage() {
     try {
       if (editing) await updateProduct(product);
       else await addProduct(product);
-      setEditing(null); setForm(emptyForm); setMediaError("");
+      setEditing(null); setForm(emptyForm); setUploadError("");
     } catch {
-      setMediaError("পণ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।");
+      setUploadError("পণ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।");
     }
   };
 
