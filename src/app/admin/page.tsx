@@ -21,12 +21,12 @@ function fileToDataUrl(file: File) {
 }
 
 export default function AdminPage() {
-  const { products, orders, storageError, addProduct, updateProduct, deleteProduct, updateOrderStatus } = useStore();
+  const { products, orders, addProduct, updateProduct, deleteProduct, updateOrderStatus } = useStore();
   const [section, setSection] = useState<"overview" | "products" | "orders">("overview");
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [uploadError, setUploadError] = useState("");
-  const mediaError = uploadError || storageError;
+  const mediaError = uploadError;
 
   const openNew = () => { setEditing(null); setForm(emptyForm); setUploadError(""); setSection("products"); };
   const openEdit = (product: Product) => {
@@ -49,11 +49,11 @@ export default function AdminPage() {
     event.preventDefault();
     const product: Product = { id: editing?.id || Date.now(), slug: (form.name || form.bn).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `rayyan-${Date.now()}`, sku: form.sku || `RY-${Date.now().toString().slice(-4)}`, name: form.name, bn: form.bn, category: form.category, price: Number(form.price), oldPrice: Number(form.oldPrice || form.price), stock: Number(form.stock), rating: editing?.rating || 5, reviews: editing?.reviews || 0, image: form.image || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1000&q=85", image2: form.image2 || form.image, video: form.video };
     try {
-      if (editing) await updateProduct(product);
-      else await addProduct(product);
+      const saveMode = editing ? await updateProduct(product) : await addProduct(product);
+      if (saveMode === "local") window.alert("API সংরক্ষণ ব্যর্থ হয়েছে, তাই পণ্যটি এই ব্রাউজারে সংরক্ষণ করা হয়েছে।");
       setEditing(null); setForm(emptyForm); setUploadError("");
     } catch {
-      setUploadError("পণ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।");
+      setUploadError("পণ্যটি স্থানীয়ভাবে সংরক্ষণ করা যায়নি। ব্রাউজারের IndexedDB সক্রিয় আছে কি না পরীক্ষা করুন।");
     }
   };
 

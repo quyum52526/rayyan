@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { products as seedProducts, type Product } from "@/lib/products";
+import { getStoredProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
 
@@ -28,12 +29,11 @@ type StoredCartItem = {
 
 type StoreContextValue = {
   products: Product[];
-  storageError: string | null;
   cart: Product[];
   orders: CustomerOrder[];
-  addProduct: (product: Product) => Promise<void>;
-  updateProduct: (product: Product) => Promise<void>;
-  deleteProduct: (id: number) => Promise<void>;
+  addProduct: (product: Product) => Promise<"server" | "local">;
+  updateProduct: (product: Product) => Promise<"server" | "local">;
+  deleteProduct: (id: number) => Promise<"server" | "local">;
   addToCart: (product: Product) => void;
   removeFromCart: (index: number) => void;
   clearCart: () => void;
@@ -44,8 +44,6 @@ type StoreContextValue = {
 const StoreContext = createContext<StoreContextValue | null>(null);
 const CART_KEY = "rayyan-cart";
 const ORDERS_KEY = "rayyan-orders";
-const PRODUCTS_KEY = "rayyan-products";
-
 function readStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -56,15 +54,9 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
-function writeStorage<T>(key: string, value: T): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    return null;
-  } catch (error) {
-    console.warn(`Unable to save ${key} to localStorage.`, error);
-    return "পণ্যটি সার্ভারে সংরক্ষিত হয়েছে, কিন্তু ব্রাউজারের স্টোরেজ পূর্ণ থাকায় স্থানীয় কপি রাখা যায়নি।";
-  }
+function writeStorage<T>(key: string, value: T) {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.setItem(key, JSON.stringify(value)); } catch (error) { console.warn(`Unable to save ${key} to localStorage.`, error); }
 }
 
 function normalizeCart(value: unknown, availableProducts: Product[]): StoredCartItem[] {
@@ -91,21 +83,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const [storageError, setStorageError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     const loadStore = async () => {
       let activeProducts = seedProducts;
+      let hasLocalCatalog = false;
       try {
-        const response = await fetch("/api/products", { cache: "no-store" });
-        if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
-        activeProducts = await response.json() as Product[];
-        if (active) setProducts(activeProducts);
+        const localProducts = await getStoredProducts();
+        if (localProducts) {
+          activeProducts = localProducts;
+          hasLocalCatalog = true;
+        }
       } catch (error) {
-        console.warn("Unable to load products from the server; using the seed catalog.", error);
+        console.warn("Unable to read the local product catalog.", error);
+      }
+      if (!hasLocalCatalog) {
+        try {
+          const response = await fetch("/api/products", { cache: "no-store" });
+          if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
+          activeProducts = await response.json() as Product[];
+        } catch (error) {
+          console.warn("Unable to load products from the server; using the seed catalog.", error);
+        }
       }
       if (active) {
+        setProducts(activeProducts);
         setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
         setOrders(readStorage(ORDERS_KEY, []));
         setHydrated(true);
@@ -125,29 +128,55 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: StoreContextValue = {
     products,
-    storageError,
     cart,
     orders,
     addProduct: async (product) => {
-      const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
-      if (!response.ok) throw new Error("Unable to save product.");
-      const nextProducts = await response.json() as Product[];
-      setProducts(nextProducts);
-      setStorageError(writeStorage(PRODUCTS_KEY, nextProducts));
+      try {
+        const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
+        if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
+        const nextProducts = await response.json() as Product[];
+        setProducts(nextProducts);
+        await setStoredProducts(nextProducts);
+        return "server";
+      } catch (error) {
+        console.warn("Unable to save product to the API; saving locally instead.", error);
+        const nextProducts = products.some((item) => item.id === product.id) ? products.map((item) => item.id === product.id ? product : item) : [...products, product];
+        await setStoredProducts(nextProducts);
+        setProducts(nextProducts);
+        return "local";
+      }
     },
     updateProduct: async (product) => {
-      const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
-      if (!response.ok) throw new Error("Unable to save product.");
-      const nextProducts = await response.json() as Product[];
-      setProducts(nextProducts);
-      setStorageError(writeStorage(PRODUCTS_KEY, nextProducts));
+      try {
+        const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
+        if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
+        const nextProducts = await response.json() as Product[];
+        setProducts(nextProducts);
+        await setStoredProducts(nextProducts);
+        return "server";
+      } catch (error) {
+        console.warn("Unable to update product through the API; saving locally instead.", error);
+        const nextProducts = products.map((item) => item.id === product.id ? product : item);
+        await setStoredProducts(nextProducts);
+        setProducts(nextProducts);
+        return "local";
+      }
     },
     deleteProduct: async (id) => {
-      const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Unable to delete product.");
-      const nextProducts = await response.json() as Product[];
-      setProducts(nextProducts);
-      setStorageError(writeStorage(PRODUCTS_KEY, nextProducts));
+      try {
+        const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
+        if (!response.ok) throw new Error(`Product delete failed with ${response.status}.`);
+        const nextProducts = await response.json() as Product[];
+        setProducts(nextProducts);
+        await setStoredProducts(nextProducts);
+        return "server";
+      } catch (error) {
+        console.warn("Unable to delete product through the API; deleting locally instead.", error);
+        const nextProducts = products.filter((item) => item.id !== id);
+        await setStoredProducts(nextProducts);
+        setProducts(nextProducts);
+        return "local";
+      }
     },
     addToCart: (product) => setStoredCart((current) => {
       const existing = current.find((item) => item.productId === String(product.id));
