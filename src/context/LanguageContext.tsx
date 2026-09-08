@@ -134,10 +134,10 @@ const translations: Record<Language, Translation> = {
     categories: {
       kicker: "For your kitchen", heading: "What are you looking for today?", viewAll: "View all",
       items: [
-        { label: "Powdered spices", count: "24 products", alt: "Fresh powdered spices" },
-        { label: "Whole spices", count: "18 products", alt: "Cinnamon, cardamom and whole spices" },
-        { label: "Ready to cook", count: "12 products", alt: "Freshly cut ready-to-cook vegetables" },
-        { label: "Premium combos", count: "8 products", alt: "Premium spice combo" },
+        { label: "Powder Spices", count: "24 Products", alt: "Fresh powdered spices" },
+        { label: "Whole Spices", count: "18 Products", alt: "Cinnamon, cardamom and whole spices" },
+        { label: "Ready to Cook", count: "12 Products", alt: "Freshly cut ready-to-cook vegetables" },
+        { label: "Premium Combos", count: "8 Products", alt: "Premium spice combo" },
       ],
     },
     offer: { kicker: "This week's kitchen offer", headingBefore: "Save ", headingHighlight: "20% on three combos", timerLabel: "Offer ends in", timerValue: "02 : 14 : 36", cta: "View offer" },
@@ -178,7 +178,7 @@ const translations: Record<Language, Translation> = {
     },
     gallery: { package: "Package", ingredients: "Ingredients", video: "Video", media: "Product media", view: "view", playVideo: "Play video", pauseVideo: "Pause video", unmute: "Turn sound on", mute: "Turn sound off", muted: "Muted", soundOn: "Sound on" },
     notFound: { title: "Product not found", body: "The product was removed from the admin panel, or the link is not correct." },
-    categoryNames: { "গুঁড়া মসলা": "Powdered spices", "গোটা মসলা": "Whole spices", "রেডি-টু-কুক": "Ready to cook", "প্রিমিয়াম কম্বো": "Premium combos" },
+    categoryNames: { "গুঁড়া মসলা": "Powder Spices", "গোটা মসলা": "Whole Spices", "রেডি-টু-কুক": "Ready to Cook", "প্রিমিয়াম কম্বো": "Premium Combos" },
   },
 };
 
