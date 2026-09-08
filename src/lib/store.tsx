@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { products as seedProducts, type Product } from "@/lib/products";
-import { getPendingProducts, getStoredProducts, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
+import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
 
@@ -114,9 +114,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try { localProducts = await getStoredProducts(); } catch (error) { console.warn("Unable to read the local product catalog.", error); }
       try {
         activeProducts = await fetchCatalog();
-        const queuedProducts = await getPendingProducts();
+        const deletedIds = new Set(await getDeletedProductIds());
+        const queuedProducts = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
         const cloudIds = new Set(activeProducts.map((product) => product.id));
-        const legacyLocalProducts = (localProducts || []).filter((product) => !cloudIds.has(product.id));
+        const legacyLocalProducts = (localProducts || []).filter((product) => !cloudIds.has(product.id) && !deletedIds.has(product.id));
         const pending = [...queuedProducts, ...legacyLocalProducts.filter((product) => !queuedProducts.some((queued) => queued.id === product.id))];
         if (pending.length > 0) {
           await setPendingProducts(pending);
@@ -132,7 +133,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       if (active) {
         try {
-          const pending = await getPendingProducts();
+          const deletedIds = new Set(await getDeletedProductIds());
+          const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
           setPendingProductsState(pending);
           const cloudIds = new Set(activeProducts.map((product) => product.id));
           activeProducts = [...activeProducts, ...pending.filter((product) => !cloudIds.has(product.id))];
@@ -166,6 +168,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     orders,
     addProduct: async (product) => {
       try {
+        await removeDeletedProductId(product.id);
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean; products: Product[] };
@@ -193,6 +196,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     updateProduct: async (product) => {
       try {
+        await removeDeletedProductId(product.id);
         const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(product) });
         if (!response.ok) throw new Error(`Product save failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean; products: Product[] };
@@ -220,6 +224,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     deleteProduct: async (id) => {
       try {
+        await addDeletedProductId(id);
         const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
         if (!response.ok) throw new Error(`Product delete failed with ${response.status}.`);
         const payload = await response.json() as { success: boolean; products: Product[] };
@@ -246,7 +251,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
     },
     syncLocalProducts: async () => {
-      const pending = await getPendingProducts();
+      const deletedIds = new Set(await getDeletedProductIds());
+      const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
       let synced = 0;
       let syncedProducts = products;
       setSyncProgress({ current: 0, total: pending.length });
