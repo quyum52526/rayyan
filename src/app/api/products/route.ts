@@ -82,7 +82,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[products.GET] read failed", JSON.stringify(describeError(error)));
-    return NextResponse.json({ error: "Catalog unavailable.", details: describeError(error) }, { status: 500 });
+    return NextResponse.json({ error: "Catalog unavailable." }, { status: 500 });
   }
 }
 
@@ -133,7 +133,6 @@ export async function POST(request: Request) {
         error: details.message || "Catalog could not be saved.",
         stage,
         hasBlobToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-        details,
       },
       { status: 500 }
     );
@@ -155,6 +154,6 @@ export async function DELETE(request: Request) {
   } catch (error) {
     const details = describeError(error);
     console.error("[products.DELETE] failed", JSON.stringify(details));
-    return NextResponse.json({ error: details.message || "Catalog could not be saved.", details }, { status: 500 });
+    return NextResponse.json({ error: details.message || "Catalog could not be saved." }, { status: 500 });
   }
 }
