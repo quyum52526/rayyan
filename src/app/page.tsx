@@ -16,6 +16,14 @@ const categoryMeta = [
   { slug: "combos", image: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=800&q=85" },
 ];
 
+// Positional match to t.products.tabs. null means "no category filter".
+// Categories are stored on the product in Bengali, so match on those values.
+const productTabCategories: (string[] | null)[] = [
+  null,
+  ["গুঁড়া মসলা", "গোটা মসলা"],
+  ["রেডি-টু-কুক"],
+];
+
 const heroSlideMeta = [
   { href: "/category/powder-spices", theme: "powder", image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=1100&q=85" },
   { href: "/category/whole-spices", theme: "whole", image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1100&q=85" },
@@ -38,7 +46,15 @@ export default function Home() {
   const touchStartX = useRef<number | null>(null);
   const slide = { ...t.hero.slides[activeSlide], ...heroSlideMeta[activeSlide] };
   const categories = categoryMeta.map((meta, index) => ({ ...meta, ...t.categories.items[index] }));
-  const filteredProducts = useMemo(() => products.filter((product) => `${product.name} ${product.bn} ${product.category}`.toLowerCase().includes(search.toLowerCase())), [products, search]);
+  const filteredProducts = useMemo(() => {
+    const allowedCategories = productTabCategories[activeProductTab];
+    const query = search.trim().toLowerCase();
+    return products.filter((product) => {
+      const matchesSearch = !query || `${product.name} ${product.bn} ${product.category}`.toLowerCase().includes(query);
+      const matchesTab = !allowedCategories || allowedCategories.includes(product.category);
+      return matchesSearch && matchesTab;
+    });
+  }, [products, search, activeProductTab]);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const freeDeliveryProgress = Math.min((total / 1000) * 100, 100);
   const addProductToCart = (product: Product) => { addToCart(product); setCartOpen(true); };
@@ -73,7 +89,7 @@ export default function Home() {
 
       <section className="offer-banner"><div className="container offer-inner"><div className="offer-spark">✹</div><div><p>{t.offer.kicker}</p><h2>{t.offer.headingBefore}<strong>{t.offer.headingHighlight}</strong></h2></div><div className="offer-timer"><span>{t.offer.timerLabel}</span><b>{t.offer.timerValue}</b></div><a className="dark-button" href="#products">{t.offer.cta} <ArrowRight size={16} /></a></div></section>
 
-      <section className="section container products-section" id="products"><div className="section-heading"><div><p className="kicker">{t.products.kicker}</p><h2>{t.products.heading}</h2></div><div className="product-tabs">{t.products.tabs.map((tab, index) => <button className={activeProductTab === index ? "active" : ""} onClick={() => setActiveProductTab(index)} key={tab}>{tab}</button>)}</div></div><div className="product-grid">{filteredProducts.map((product) => <ProductCard key={product.id} product={product} liked={liked.includes(product.id)} onToggleWishlist={() => setLiked((current) => current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id])} onAddToCart={() => addProductToCart(product)} onQuickView={() => { setActiveProduct(product); setQuantity(1); }} />)}</div></section>
+      <section className="section container products-section" id="products"><div className="section-heading"><div><p className="kicker">{t.products.kicker}</p><h2>{t.products.heading}</h2></div><div className="product-tabs">{t.products.tabs.map((tab, index) => <button className={activeProductTab === index ? "active" : ""} onClick={() => setActiveProductTab(index)} key={tab}>{tab}</button>)}</div></div>{filteredProducts.length === 0 ? <div className="empty-state"><Search size={26} /><h3>{t.products.emptyTitle}</h3><p>{t.products.emptyBody}</p></div> : <div className="product-grid">{filteredProducts.map((product) => <ProductCard key={product.id} product={product} liked={liked.includes(product.id)} onToggleWishlist={() => setLiked((current) => current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id])} onAddToCart={() => addProductToCart(product)} onQuickView={() => { setActiveProduct(product); setQuantity(1); }} />)}</div>}</section>
 
       <section className="story-section" id="story"><div className="container story-grid"><div className="story-image"><img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=85" alt={t.story.imageAlt} /><div className="story-badge"><strong>{t.story.badgeNumber}</strong><span>{t.story.badgeText}</span></div></div><div className="story-copy"><p className="kicker">{t.story.kicker}</p><h2>{t.story.headingTop}<br /><em>{t.story.headingEm}</em></h2><p>{t.story.body}</p><div className="story-points">{t.story.points.map((point) => <span key={point}><Check size={15} /> {point}</span>)}</div><a className="text-link" href="#top">{t.story.cta} <ArrowRight size={16} /></a></div></div></section>
 

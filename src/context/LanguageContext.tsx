@@ -19,7 +19,7 @@ type Translation = {
   trust: TrustItem[];
   categories: { kicker: string; heading: string; viewAll: string; items: CategoryCopy[] };
   offer: { kicker: string; headingBefore: string; headingHighlight: string; timerLabel: string; timerValue: string; cta: string };
-  products: { kicker: string; heading: string; tabs: string[] };
+  products: { kicker: string; heading: string; tabs: string[]; emptyTitle: string; emptyBody: string };
   story: { kicker: string; headingTop: string; headingEm: string; body: string; points: string[]; cta: string; badgeNumber: string; badgeText: string; imageAlt: string };
   footer: { tagline: string; line: string; copyright: string };
   card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string };
@@ -73,7 +73,7 @@ const translations: Record<Language, Translation> = {
       ],
     },
     offer: { kicker: "এই সপ্তাহের রান্নাঘর অফার", headingBefore: "তিনটি কম্বোতে ", headingHighlight: "২০% ছাড়", timerLabel: "অফার শেষ হতে", timerValue: "০২ : ১৪ : ৩৬", cta: "অফার দেখুন" },
-    products: { kicker: "RAYYAN-এর পছন্দ", heading: "এই সপ্তাহের সেরা পণ্য", tabs: ["সবগুলো", "মসলা", "রেডি-টু-কুক"] },
+    products: { kicker: "RAYYAN-এর পছন্দ", heading: "এই সপ্তাহের সেরা পণ্য", tabs: ["সবগুলো", "মসলা", "রেডি-টু-কুক"], emptyTitle: "কোনো পণ্য পাওয়া যায়নি", emptyBody: "অন্য ক্যাটাগরি বেছে নিন অথবা অন্য শব্দ দিয়ে খুঁজে দেখুন।" },
     story: {
       kicker: "কেন RAYYAN?", headingTop: "স্বাদের শুরু হোক", headingEm: "বিশুদ্ধতা থেকে",
       body: "আমরা বিশ্বাস করি, ভালো রান্নার জন্য ভালো উপকরণই যথেষ্ট। তাই প্রতিটি মসলা ও সবজি বেছে নিই স্বচ্ছ উৎস থেকে, রাখি তার স্বাভাবিক গন্ধ, রঙ এবং পুষ্টি।",
@@ -141,7 +141,7 @@ const translations: Record<Language, Translation> = {
       ],
     },
     offer: { kicker: "This week's kitchen offer", headingBefore: "Save ", headingHighlight: "20% on three combos", timerLabel: "Offer ends in", timerValue: "02 : 14 : 36", cta: "View offer" },
-    products: { kicker: "RAYYAN's picks", heading: "This week's best products", tabs: ["All", "Spices", "Ready to cook"] },
+    products: { kicker: "RAYYAN's picks", heading: "This week's best products", tabs: ["All", "Spices", "Ready-to-cook"], emptyTitle: "No products found", emptyBody: "Pick another category, or try a different search term." },
     story: {
       kicker: "Why RAYYAN?", headingTop: "Let flavor begin", headingEm: "with purity",
       body: "We believe good cooking needs nothing more than good ingredients. So we choose every spice and vegetable from transparent sources, keeping their natural aroma, color and nutrition intact.",
