@@ -14,6 +14,9 @@ export type Product = {
   image2?: string;
   video?: string;
   tag?: string;
+  description?: string;
+  nutrition?: string;
+  storageInstructions?: string;
 };
 
 import catalog from "@/data/products.json";

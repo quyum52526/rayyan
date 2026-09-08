@@ -27,9 +27,9 @@ export default function ProductDetail({ product }: { product: Product }) {
   const total = product.price * quantity;
 
   const detail = {
-    description: "পাহাড়ি অঞ্চলের কৃষকদের কাছ থেকে বাছাই করা হলুদ দিয়ে তৈরি এই মসলা। ধীরে শুকিয়ে, ছোট ব্যাচে গুঁড়া করা হয় যাতে প্রাকৃতিক রঙ, ঘ্রাণ ও স্বাদ অটুট থাকে।",
-    nutrition: "প্রতি ১০০ গ্রামে: শক্তি ৩১২ কিলোক্যালরি, প্রোটিন ৯.৭ গ্রাম, ফাইবার ২২.৭ গ্রাম। কোনো কৃত্রিম রঙ, সংরক্ষণকারী বা মিশ্রণ নেই।",
-    storage: "শুকনো ও ঠান্ডা জায়গায়, সরাসরি রোদ থেকে দূরে রাখুন। ব্যবহারের পর প্যাকেটের মুখ ভালোভাবে বন্ধ করুন এবং ৬ মাসের মধ্যে ব্যবহার করুন।",
+    description: product.description,
+    nutrition: product.nutrition,
+    storage: product.storageInstructions,
   };
 
   return (
@@ -49,7 +49,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           <Link className="pdp-buy-now" href="/checkout">সরাসরি অর্ডার করুন <ArrowRight size={18} /></Link>
           <div className="pdp-delivery"><Truck size={18} /><span><b>ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি</b><small>সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা</small></span></div>
           <div className="pdp-trust-row"><span><Check size={14} /> ১০০% অর্গানিক</span><span><Check size={14} /> ভ্যাকুয়াম প্যাকড</span><span><Check size={14} /> ক্যাশ অন ডেলিভারি</span><span><Check size={14} /> ২৪–৪৮ ঘণ্টা</span></div>
-          <div className="pdp-info-tabs"><div className="pdp-tab-list" role="tablist">{tabs.map((tab) => <button className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} role="tab" aria-selected={activeTab === tab.id} key={tab.id}>{tab.label}</button>)}</div><div className="pdp-tab-panel" role="tabpanel"><p>{detail[activeTab as keyof typeof detail]}</p></div></div>
+          <div className="pdp-info-tabs"><div className="pdp-tab-list" role="tablist">{tabs.map((tab) => <button className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} role="tab" aria-selected={activeTab === tab.id} key={tab.id}>{tab.label}</button>)}</div><div className="pdp-tab-panel" role="tabpanel"><p>{detail[activeTab as keyof typeof detail] || "এই পণ্যের জন্য তথ্য শীঘ্রই যুক্ত করা হবে।"}</p></div></div>
         </div>
       </section>
       {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">আপনার শপিং ব্যাগ</p><h2>কার্ট <span>(১)</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label="কার্ট বন্ধ করুন"><X size={20} /></button></div><div className="drawer-items"><div className="drawer-item"><img src={product.image} alt={product.bn} /><div><h3>{product.bn}</h3><p>{selectedVariant} × {quantity}</p><strong>৳{bengaliPrice(total)}</strong></div></div></div><div className="drawer-footer"><div><span>সাবটোটাল</span><strong>৳{bengaliPrice(total)}</strong></div><p>ডেলিভারি চার্জ চেকআউটে যুক্ত হবে</p><Link className="primary-button checkout-button" href="/checkout">চেকআউটে যান <ArrowRight size={17} /></Link></div></aside></div>}
