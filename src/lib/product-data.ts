@@ -48,6 +48,7 @@ export async function saveProducts(nextProducts: Product[]): Promise<Product[]> 
       await put(catalogBlobPath, content, {
         access: "public",
         addRandomSuffix: false,
+        allowOverwrite: true,
         contentType: "application/json",
         token,
       });
