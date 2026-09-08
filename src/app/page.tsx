@@ -6,7 +6,7 @@ import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import { useStore } from "@/lib/store";
-import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
+import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
 import type { Product } from "@/lib/products";
 
 const categoryMeta = [

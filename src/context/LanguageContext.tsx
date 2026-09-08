@@ -38,6 +38,11 @@ type Translation = {
     benefitDelivery: string; benefitCod: string; secureNote: string;
     successKicker: string; successHeading: string; successBody: string; continueShopping: string; adminLink: string; orderPlacedAlert: string;
   };
+  payment: {
+    heading: string; methods: { cod: string; bkash: string; nagad: string };
+    codNote: string; sendMoneyNote: string; merchantLabel: string; trxLabel: string;
+    trxPlaceholder: string; trxRequired: string; summaryLabel: string; codSummary: string; digitalSummary: string;
+  };
   gallery: { package: string; ingredients: string; video: string; media: string; view: string; playVideo: string; pauseVideo: string; unmute: string; mute: string; muted: string; soundOn: string };
   notFound: { title: string; body: string };
   categoryNames: Record<string, string>;
@@ -108,6 +113,19 @@ const translations: Record<Language, Translation> = {
       successKicker: "অর্ডার গ্রহণ করা হয়েছে", successHeading: "ধন্যবাদ", successBody: "আপনার অর্ডারটি RAYYAN টিমের কাছে পৌঁছে গেছে। খুব শিগগিরই আমরা আপনার সঙ্গে যোগাযোগ করব।",
       continueShopping: "শপিং চালিয়ে যান", adminLink: "অর্ডার ম্যানেজমেন্ট দেখুন", orderPlacedAlert: "ধন্যবাদ! আপনার অর্ডারটি গ্রহণ করা হয়েছে।",
     },
+    payment: {
+      heading: "পেমেন্ট পদ্ধতি",
+      methods: { cod: "ক্যাশ অন ডেলিভারি", bkash: "বিকাশ", nagad: "নগদ" },
+      codNote: "পণ্য হাতে পাওয়ার পর টাকা পরিশোধ করুন।",
+      sendMoneyNote: "নিচের নম্বরে {amount} সেন্ড মানি করুন, তারপর TrxID নিচে লিখুন।",
+      merchantLabel: "{method} নম্বর",
+      trxLabel: "ট্রানজেকশন আইডি (TrxID)",
+      trxPlaceholder: "যেমন 9F2X3ABC01",
+      trxRequired: "অর্ডার নিশ্চিত করার আগে TrxID লিখুন।",
+      summaryLabel: "পেমেন্ট পদ্ধতি",
+      codSummary: "ডেলিভারির সময় {amount} পরিশোধ করুন।",
+      digitalSummary: "TrxID {trx} — আমরা পেমেন্ট যাচাই করে নিশ্চিত করব।",
+    },
     gallery: { package: "প্যাকেজ", ingredients: "উপকরণ", video: "ভিডিও", media: "পণ্যের মিডিয়া", view: "দেখুন", playVideo: "ভিডিও চালান", pauseVideo: "ভিডিও থামান", unmute: "শব্দ চালু করুন", mute: "শব্দ বন্ধ করুন", muted: "মিউটেড", soundOn: "শব্দ চালু" },
     notFound: { title: "পণ্যটি পাওয়া যায়নি", body: "অ্যাডমিন থেকে পণ্যটি মুছে ফেলা হয়েছে অথবা লিংকটি সঠিক নয়।" },
     categoryNames: { "গুঁড়া মসলা": "গুঁড়া মসলা", "গোটা মসলা": "গোটা মসলা", "রেডি-টু-কুক": "রেডি-টু-কুক", "প্রিমিয়াম কম্বো": "প্রিমিয়াম কম্বো" },
@@ -175,6 +193,19 @@ const translations: Record<Language, Translation> = {
       benefitDelivery: "Delivery in Dhaka within 24–48 hours", benefitCod: "Pay once it reaches you", secureNote: "Safe and trusted ordering",
       successKicker: "Order received", successHeading: "Thank you", successBody: "Your order has reached the RAYYAN team. We will get in touch with you very soon.",
       continueShopping: "Continue shopping", adminLink: "Open order management", orderPlacedAlert: "Thank you! Your order has been received.",
+    },
+    payment: {
+      heading: "Payment method",
+      methods: { cod: "Cash on delivery", bkash: "bKash", nagad: "Nagad" },
+      codNote: "Pay once the order reaches you.",
+      sendMoneyNote: "Send {amount} to the number below, then enter the TrxID.",
+      merchantLabel: "{method} number",
+      trxLabel: "Transaction ID (TrxID)",
+      trxPlaceholder: "e.g. 9F2X3ABC01",
+      trxRequired: "Enter the TrxID before confirming the order.",
+      summaryLabel: "Payment method",
+      codSummary: "Pay {amount} when the order arrives.",
+      digitalSummary: "TrxID {trx} — we will verify the payment and confirm.",
     },
     gallery: { package: "Package", ingredients: "Ingredients", video: "Video", media: "Product media", view: "view", playVideo: "Play video", pauseVideo: "Pause video", unmute: "Turn sound on", mute: "Turn sound off", muted: "Muted", soundOn: "Sound on" },
     notFound: { title: "Product not found", body: "The product was removed from the admin panel, or the link is not correct." },

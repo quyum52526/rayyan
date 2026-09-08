@@ -83,3 +83,19 @@ footer { background:var(--deep-maroon); color:#fff; }.footer-inner { min-height:
 .admin-form textarea { width:100%; border:1px solid #dfd2c5; background:#fffdf9; padding:11px; outline:0; font:12px/1.7 'Hind Siliguri',sans-serif; resize:vertical; }
 .admin-form textarea:focus { border-color:var(--maroon); }
 .admin-form-longtext { grid-template-columns:1fr; margin-top:15px; }
+.payment-methods { display:grid; gap:8px; margin-bottom:12px; }
+.payment-method { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #dfd2c5; background:#fffdf9; cursor:pointer; font:600 12px 'Hind Siliguri',sans-serif; color:var(--ink); }
+.payment-method.selected { border-color:var(--maroon); color:var(--maroon); background:#fff7f2; }
+.payment-method input { accent-color:var(--maroon); margin:0; }
+.payment-method-name { flex:1; }
+.payment-method svg { color:var(--green); }
+.payment-instructions { padding:14px; border:1px dashed var(--maroon); background:#fff7f2; display:grid; gap:10px; }
+.payment-instructions > p { margin:0; color:#6d5c55; font:12px/1.7 'Hind Siliguri',sans-serif; }
+.payment-merchant { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:9px 11px; background:#fff; border:1px solid #e6d8cc; }
+.payment-merchant small { color:#9a8d82; font:10px 'Hind Siliguri',sans-serif; }
+.payment-merchant b { color:var(--maroon); font:700 15px Manrope,sans-serif; letter-spacing:.5px; }
+.order-payment-summary { display:grid; gap:3px; margin:0 auto 22px; padding:14px; max-width:400px; border:1px solid #e6d8cc; background:#fffdf9; text-align:left; }
+.order-payment-summary small { color:#9a8d82; font:10px 'Hind Siliguri',sans-serif; }
+.order-payment-summary b { color:var(--maroon); font:600 14px 'Hind Siliguri',sans-serif; }
+.order-payment-summary span { color:#6d5c55; font:11px/1.6 'Hind Siliguri',sans-serif; }
+.order-trxid { color:#6d5c55; font:10px Manrope,sans-serif; word-break:break-all; }

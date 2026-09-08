@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { PaymentMethod } from "@/lib/payment";
 import { products as seedProducts, type Product } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
@@ -12,7 +13,8 @@ export type CustomerOrder = {
   phone: string;
   address: string;
   zone: "inside" | "outside";
-  paymentMethod: "cod" | "bkash";
+  paymentMethod: PaymentMethod;
+  transactionId?: string;
   status: OrderStatus;
   items: Product[];
   subtotal: number;
