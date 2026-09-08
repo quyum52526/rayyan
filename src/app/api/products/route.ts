@@ -150,7 +150,7 @@ export async function DELETE(request: Request) {
     const nextProducts = currentProducts.filter((product) => product.id !== id);
 
     await saveProducts(nextProducts, { baseSource });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, products: nextProducts });
   } catch (error) {
     const details = describeError(error);
     console.error("[products.DELETE] failed", JSON.stringify(details));

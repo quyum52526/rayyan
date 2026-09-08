@@ -222,14 +222,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch(`/api/products?id=${id}`, { method: "DELETE" });
         if (!response.ok) throw new Error(`Product delete failed with ${response.status}.`);
-        const payload = await response.json() as { success: boolean };
-        if (!payload.success) throw new Error("Invalid product delete response.");
-        let nextProducts: Product[];
-        try {
-          nextProducts = await fetchCatalog();
-        } catch {
-          nextProducts = products.filter((item) => item.id !== id);
-        }
+        const payload = await response.json() as { success: boolean; products: Product[] };
+        if (!payload.success || !Array.isArray(payload.products)) throw new Error("Invalid product delete response.");
+        const nextProducts = payload.products;
         setProducts(nextProducts);
         await cacheCatalog(nextProducts);
         const pending = await getPendingProducts();
