@@ -99,3 +99,10 @@ footer { background:var(--deep-maroon); color:#fff; }.footer-inner { min-height:
 .order-payment-summary b { color:var(--maroon); font:600 14px 'Hind Siliguri',sans-serif; }
 .order-payment-summary span { color:#6d5c55; font:11px/1.6 'Hind Siliguri',sans-serif; }
 .order-trxid { color:#6d5c55; font:10px Manrope,sans-serif; word-break:break-all; }
+/* Both checkout forms style bare label/input as full-width blocks, which would
+   flatten the payment radio rows. Re-assert the radio layout inside them. */
+.checkout-form .payment-methods, .checkout-page-form .payment-methods { margin-top:14px; }
+.checkout-form .payment-method, .checkout-page-form .payment-method { display:flex; margin-top:0; }
+.checkout-form .payment-method input[type="radio"], .checkout-page-form .payment-method input[type="radio"] { display:inline-block; width:auto; margin:0; padding:0; }
+.checkout-form .payment-instructions label, .checkout-page-form .payment-instructions label { margin-top:0; }
+.checkout-form .payment-instructions > p, .checkout-page-form .payment-instructions > p { margin:0; }

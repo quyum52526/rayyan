@@ -5,6 +5,8 @@ import { ArrowRight, Check, ChevronDown, ChevronRight, Heart, Minus, Plus, Searc
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
+import PaymentMethodFields from "@/components/PaymentMethodFields";
+import { requiresTransactionId, type PaymentMethod } from "@/lib/payment";
 import { useStore } from "@/lib/store";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
 import type { Product } from "@/lib/products";
@@ -32,7 +34,7 @@ const heroSlideMeta = [
 ];
 
 export default function Home() {
-  const { products, cart, addToCart, removeFromCart } = useStore();
+  const { products, cart, addToCart, removeFromCart, createOrder } = useStore();
   const { language, toggleLanguage, t } = useLanguage();
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -43,6 +45,13 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeProductTab, setActiveProductTab] = useState(0);
   const [isHeroHovered, setIsHeroHovered] = useState(false);
+  const [checkoutName, setCheckoutName] = useState("");
+  const [checkoutPhone, setCheckoutPhone] = useState("");
+  const [checkoutAddress, setCheckoutAddress] = useState("");
+  const [checkoutZone, setCheckoutZone] = useState<"inside" | "outside">("inside");
+  const [checkoutPayment, setCheckoutPayment] = useState<PaymentMethod>("cod");
+  const [checkoutTransactionId, setCheckoutTransactionId] = useState("");
+  const [checkoutError, setCheckoutError] = useState("");
   const touchStartX = useRef<number | null>(null);
   const slide = { ...t.hero.slides[activeSlide], ...heroSlideMeta[activeSlide] };
   const categories = categoryMeta.map((meta, index) => ({ ...meta, ...t.categories.items[index] }));
@@ -60,6 +69,52 @@ export default function Home() {
   const addProductToCart = (product: Product) => { addToCart(product); setCartOpen(true); };
   const moveSlide = (direction: 1 | -1) => setActiveSlide((current) => (current + direction + heroSlideMeta.length) % heroSlideMeta.length);
   const activeDiscount = activeProduct ? Math.round((1 - activeProduct.price / activeProduct.oldPrice) * 100) : 0;
+  const checkoutDeliveryFee = checkoutZone === "inside" ? 60 : 120;
+  const checkoutGrandTotal = total + checkoutDeliveryFee;
+  const checkoutNeedsTransactionId = requiresTransactionId(checkoutPayment);
+
+  const selectCheckoutPayment = (method: PaymentMethod) => {
+    setCheckoutPayment(method);
+    setCheckoutError("");
+    if (!requiresTransactionId(method)) setCheckoutTransactionId("");
+  };
+
+  const placeModalOrder = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!cart.length) return;
+
+    const trimmedTransactionId = checkoutTransactionId.trim();
+    if (checkoutNeedsTransactionId && !trimmedTransactionId) {
+      setCheckoutError(t.payment.trxRequired);
+      return;
+    }
+
+    const paymentSummary = checkoutNeedsTransactionId
+      ? t.payment.digitalSummary.replace("{trx}", trimmedTransactionId)
+      : t.payment.codSummary.replace("{amount}", formatPrice(checkoutGrandTotal, language));
+
+    createOrder({
+      customerName: checkoutName,
+      phone: checkoutPhone,
+      address: checkoutAddress,
+      zone: checkoutZone,
+      paymentMethod: checkoutPayment,
+      ...(checkoutNeedsTransactionId ? { transactionId: trimmedTransactionId } : {}),
+      items: cart,
+      subtotal: total,
+      deliveryFee: checkoutDeliveryFee,
+      grandTotal: checkoutGrandTotal,
+    });
+
+    setCheckoutError("");
+    setCheckoutOpen(false);
+    setCheckoutName(""); setCheckoutPhone(""); setCheckoutAddress("");
+    setCheckoutPayment("cod"); setCheckoutTransactionId("");
+    window.alert(`${t.checkout.orderPlacedAlert}
+
+${t.payment.summaryLabel}: ${t.payment.methods[checkoutPayment]}
+${paymentSummary}`);
+  };
 
   useEffect(() => {
     if (isHeroHovered) return;
@@ -97,7 +152,7 @@ export default function Home() {
 
       {activeProduct && <div className="modal-backdrop" onClick={() => setActiveProduct(null)}><div className="product-modal" onClick={(event) => event.stopPropagation()}><button className="close-button" onClick={() => setActiveProduct(null)} aria-label={t.modal.close}><X size={20} /></button><ProductGallery productName={productTitle(activeProduct, language)} frontImage={activeProduct.image} detailImage={activeProduct.image2 || activeProduct.image} videoSrc={activeProduct.video} /><div className="modal-details"><div className="rating"><Star size={13} fill="currentColor" /> {formatNumber(activeProduct.rating, language)} <span>({formatNumber(activeProduct.reviews, language)} {t.modal.reviews})</span></div><h2>{productTitle(activeProduct, language)}</h2><p className="modal-en">{language === "en" ? activeProduct.bn : activeProduct.name}</p><div className="variant-label">{t.modal.chooseWeight} <span>SKU: {activeProduct.sku || `RY-${activeProduct.id}01`}</span></div><div className="variants">{t.modal.variants.map((variant, index) => <button className={index === 1 ? "selected" : ""} key={variant}>{variant}</button>)}</div><div className="modal-price"><strong>{formatPrice(activeProduct.price, language)}</strong><del>{formatPrice(activeProduct.oldPrice, language)}</del><span>-{formatNumber(activeDiscount, language)}% {t.modal.off}</span></div><div className="quantity-row"><div className="quantity"><button onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={15} /></button><b>{formatNumber(quantity, language)}</b><button onClick={() => setQuantity(quantity + 1)}><Plus size={15} /></button></div><button className="primary-button modal-add" onClick={() => { addProductToCart(activeProduct); setActiveProduct(null); }}>{t.modal.addToCart} <ShoppingBag size={17} /></button></div><div className="modal-note"><Truck size={15} /> {t.modal.deliveryNote} <span>{t.modal.inStock}</span></div></div></div></div>}
       {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">{t.cart.kicker}</p><h2>{t.cart.title} <span>({formatNumber(cart.length, language)})</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label={t.cart.close}><X size={20} /></button></div><div className="free-shipping"><div><Truck size={16} /><span>{total >= 1000 ? t.cart.freeDelivery : t.cart.freeDeliveryRemaining.replace("{amount}", formatPrice(1000 - total, language))}</span></div><div className="progress"><i style={{ width: `${freeDeliveryProgress}%` }} /></div></div><div className="drawer-items">{cart.map((item, index) => <div className="drawer-item" key={`${item.id}-${index}`}><img src={item.image} alt={productTitle(item, language)} /><div><h3>{productTitle(item, language)}</h3><p>{t.cart.defaultWeight}</p><strong>{formatPrice(item.price, language)}</strong></div><button onClick={() => removeFromCart(index)} aria-label={t.cart.removeItem}><X size={15} /></button></div>)}</div><div className="drawer-footer"><div><span>{t.cart.subtotal}</span><strong>{formatPrice(total, language)}</strong></div><p>{t.cart.deliveryNote}</p><button className="primary-button checkout-button" onClick={() => { setCartOpen(false); setCheckoutOpen(true); }}>{t.cart.checkout} <ArrowRight size={17} /></button></div></aside></div>}
-      {checkoutOpen && <div className="modal-backdrop" onClick={() => setCheckoutOpen(false)}><div className="checkout-modal" onClick={(event) => event.stopPropagation()}><button className="close-button" onClick={() => setCheckoutOpen(false)} aria-label={t.modal.close}><X size={20} /></button><div className="checkout-form"><p className="kicker">{t.checkout.kicker}</p><h2>{t.checkout.heading}</h2><p className="checkout-intro">{t.checkout.intro}</p><label>{t.checkout.name}<input placeholder={t.checkout.namePlaceholder} /></label><label>{t.checkout.phone}<input placeholder={t.checkout.phonePlaceholder} /></label><label>{t.checkout.address}<textarea placeholder={t.checkout.addressPlaceholder} rows={3} /></label><label>{t.checkout.zone}<select><option>{t.checkout.zoneInside}</option><option>{t.checkout.zoneOutside}</option></select></label><h3>{t.checkout.paymentHeading}</h3><div className="payment-option"><Check size={16} /> {t.checkout.cod} <span>{t.checkout.selected}</span></div><button className="primary-button place-order" onClick={() => { setCheckoutOpen(false); window.alert(t.checkout.orderPlacedAlert); }}>{t.checkout.placeOrder} <ArrowRight size={17} /></button></div><div className="checkout-summary"><p className="kicker">{t.checkout.summaryKicker}</p><h2>{t.checkout.summaryHeading}</h2>{cart.map((item, index) => <div className="summary-item" key={`${item.id}-${index}`}><img src={item.image} alt="" /><span>{productTitle(item, language)}<small>{t.cart.defaultWeight} × {formatNumber(1, language)}</small></span><b>{formatPrice(item.price, language)}</b></div>)}<div className="summary-line"><span>{t.checkout.subtotal}</span><b>{formatPrice(total, language)}</b></div><div className="summary-line"><span>{t.checkout.delivery}</span><b>{formatPrice(60, language)}</b></div><div className="summary-total"><span>{t.checkout.grandTotal}</span><strong>{formatPrice(total + 60, language)}</strong></div><div className="secure-note"><Check size={15} /> {t.checkout.secureNote}</div></div></div></div>}
+      {checkoutOpen && <div className="modal-backdrop" onClick={() => setCheckoutOpen(false)}><div className="checkout-modal" onClick={(event) => event.stopPropagation()}><button className="close-button" onClick={() => setCheckoutOpen(false)} aria-label={t.modal.close}><X size={20} /></button><form className="checkout-form" onSubmit={placeModalOrder}><p className="kicker">{t.checkout.kicker}</p><h2>{t.checkout.heading}</h2><p className="checkout-intro">{t.checkout.intro}</p><label>{t.checkout.name}<input required value={checkoutName} onChange={(event) => setCheckoutName(event.target.value)} placeholder={t.checkout.namePlaceholder} /></label><label>{t.checkout.phone}<input required value={checkoutPhone} onChange={(event) => setCheckoutPhone(event.target.value)} placeholder={t.checkout.phonePlaceholder} /></label><label>{t.checkout.address}<textarea required value={checkoutAddress} onChange={(event) => setCheckoutAddress(event.target.value)} placeholder={t.checkout.addressPlaceholder} rows={3} /></label><label>{t.checkout.zone}<select value={checkoutZone} onChange={(event) => setCheckoutZone(event.target.value as "inside" | "outside")}><option value="inside">{t.checkout.zoneInside}</option><option value="outside">{t.checkout.zoneOutside}</option></select></label><h3>{t.payment.heading}</h3><PaymentMethodFields value={checkoutPayment} onChange={selectCheckoutPayment} transactionId={checkoutTransactionId} onTransactionIdChange={(next) => { setCheckoutTransactionId(next); setCheckoutError(""); }} amount={checkoutGrandTotal} error={checkoutError} name="homeModalPayment" /><button className="primary-button place-order" disabled={!cart.length}>{cart.length ? t.checkout.placeOrder : t.checkout.emptyCart} <ArrowRight size={17} /></button></form><div className="checkout-summary"><p className="kicker">{t.checkout.summaryKicker}</p><h2>{t.checkout.summaryHeading}</h2>{cart.map((item, index) => <div className="summary-item" key={`${item.id}-${index}`}><img src={item.image} alt="" /><span>{productTitle(item, language)}<small>{t.cart.defaultWeight} × {formatNumber(1, language)}</small></span><b>{formatPrice(item.price, language)}</b></div>)}<div className="summary-line"><span>{t.checkout.subtotal}</span><b>{formatPrice(total, language)}</b></div><div className="summary-line"><span>{t.checkout.delivery}</span><b>{formatPrice(checkoutDeliveryFee, language)}</b></div><div className="summary-line"><span>{t.payment.summaryLabel}</span><b>{t.payment.methods[checkoutPayment]}</b></div><div className="summary-total"><span>{t.checkout.grandTotal}</span><strong>{formatPrice(checkoutGrandTotal, language)}</strong></div><div className="secure-note"><Check size={15} /> {t.checkout.secureNote}</div></div></div></div>}
     </main>
   );
 }
