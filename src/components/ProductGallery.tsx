@@ -2,6 +2,7 @@
 
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useRef, useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 type GalleryAsset = {
   type: "image" | "video";
@@ -18,10 +19,11 @@ type ProductGalleryProps = {
 };
 
 export default function ProductGallery({ productName, frontImage, detailImage, videoSrc }: ProductGalleryProps) {
+  const { t } = useLanguage();
   const assets: GalleryAsset[] = [
-    { type: "image", src: frontImage, alt: `${productName} প্যাকেজ`, label: "প্যাকেজ" },
-    { type: "image", src: detailImage, alt: `${productName} উপকরণ`, label: "উপকরণ" },
-    ...(videoSrc?.trim() ? [{ type: "video" as const, src: videoSrc.trim(), alt: `${productName} তৈরির ভিডিও`, label: "ভিডিও" }] : []),
+    { type: "image", src: frontImage, alt: `${productName} ${t.gallery.package}`, label: t.gallery.package },
+    { type: "image", src: detailImage, alt: `${productName} ${t.gallery.ingredients}`, label: t.gallery.ingredients },
+    ...(videoSrc?.trim() ? [{ type: "video" as const, src: videoSrc.trim(), alt: `${productName} ${t.gallery.video}`, label: t.gallery.video }] : []),
   ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
@@ -64,11 +66,11 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
         const bounds = event.currentTarget.getBoundingClientRect();
         setZoomOrigin(`${((event.clientX - bounds.left) / bounds.width) * 100}% ${((event.clientY - bounds.top) / bounds.height) * 100}%`);
       }} onMouseLeave={() => setZoomOrigin("50% 50%")}>
-        {activeAsset.type === "image" ? <img className="gallery-main-media" src={activeAsset.src} alt={activeAsset.alt} style={{ transformOrigin: zoomOrigin }} /> : <div className="gallery-video-wrap"><video ref={videoRef} className="gallery-main-media" src={activeAsset.src} poster={detailImage} muted={isMuted} loop playsInline autoPlay={false} /><button className="gallery-play-button" onClick={toggleVideo} aria-label={isPlaying ? "ভিডিও থামান" : "ভিডিও চালান"}>{isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}</button><button className="gallery-muted" onClick={toggleSound} aria-label={isMuted ? "শব্দ চালু করুন" : "শব্দ বন্ধ করুন"}>{isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />} {isMuted ? "মিউটেড" : "শব্দ চালু"}</button></div>}
+        {activeAsset.type === "image" ? <img className="gallery-main-media" src={activeAsset.src} alt={activeAsset.alt} style={{ transformOrigin: zoomOrigin }} /> : <div className="gallery-video-wrap"><video ref={videoRef} className="gallery-main-media" src={activeAsset.src} poster={detailImage} muted={isMuted} loop playsInline autoPlay={false} /><button className="gallery-play-button" onClick={toggleVideo} aria-label={isPlaying ? t.gallery.pauseVideo : t.gallery.playVideo}>{isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}</button><button className="gallery-muted" onClick={toggleSound} aria-label={isMuted ? t.gallery.unmute : t.gallery.mute}>{isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />} {isMuted ? t.gallery.muted : t.gallery.soundOn}</button></div>}
   <span className="gallery-asset-label">{activeAsset.label}</span>
       </div>
-      <div className="gallery-thumbnails" role="tablist" aria-label="পণ্যের মিডিয়া">
-        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} দেখুন`} key={asset.label}><img src={asset.type === "video" ? detailImage : asset.src} alt="" />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
+      <div className="gallery-thumbnails" role="tablist" aria-label={t.gallery.media}>
+        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} ${t.gallery.view}`} key={asset.label}><img src={asset.type === "video" ? detailImage : asset.src} alt="" />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
       </div>
     </div>
   );

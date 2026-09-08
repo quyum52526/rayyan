@@ -4,13 +4,43 @@ import { createContext, useContext, useEffect, useSyncExternalStore, type ReactN
 
 export type Language = "bn" | "en";
 
+type Slide = { title: string; subtitle: string; badge: string; button: string; alt: string };
+type TrustItem = { title: string; note: string };
+type CategoryCopy = { label: string; count: string; alt: string };
+
 type Translation = {
   topbar: { delivery: string; nationwide: string; from: string };
   nav: { menu: string; tagline: string; products: string; categories: string; story: string; search: string; wishlist: string; cart: string; language: string };
   hero: {
-    slides: Array<{ title: string; subtitle: string; badge: string; button: string; alt: string }>;
+    slides: Slide[];
+    avatars: string[];
     categories: string; families: string; familiesNote: string; pure: string; fresh: string; previous: string; next: string; select: string; slide: string;
   };
+  trust: TrustItem[];
+  categories: { kicker: string; heading: string; viewAll: string; items: CategoryCopy[] };
+  offer: { kicker: string; headingBefore: string; headingHighlight: string; timerLabel: string; timerValue: string; cta: string };
+  products: { kicker: string; heading: string; tabs: string[] };
+  story: { kicker: string; headingTop: string; headingEm: string; body: string; points: string[]; cta: string; badgeNumber: string; badgeText: string; imageAlt: string };
+  footer: { tagline: string; line: string; copyright: string };
+  card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string };
+  pdp: {
+    back: string; home: string; cart: string; reviews: string; inStock: string; weightHeading: string; variants: string[];
+    decrease: string; increase: string; addToCart: string; buyNow: string; deliveryTitle: string; deliveryNote: string;
+    trustRow: string[]; tabs: { description: string; nutrition: string; storage: string }; tabEmpty: string; off: string;
+  };
+  cart: { kicker: string; title: string; close: string; freeDelivery: string; freeDeliveryRemaining: string; subtotal: string; deliveryNote: string; checkout: string; removeItem: string; defaultWeight: string };
+  modal: { close: string; chooseWeight: string; reviews: string; addToCart: string; deliveryNote: string; inStock: string; off: string; variants: string[] };
+  checkout: {
+    back: string; secure: string; kicker: string; heading: string; intro: string; name: string; namePlaceholder: string;
+    phone: string; phonePlaceholder: string; address: string; addressPlaceholder: string; zone: string; zoneInside: string;
+    zoneOutside: string; paymentHeading: string; cod: string; selected: string; placeOrder: string; emptyCart: string;
+    summaryKicker: string; summaryHeading: string; subtotal: string; delivery: string; grandTotal: string;
+    benefitDelivery: string; benefitCod: string; secureNote: string;
+    successKicker: string; successHeading: string; successBody: string; continueShopping: string; adminLink: string; orderPlacedAlert: string;
+  };
+  gallery: { package: string; ingredients: string; video: string; media: string; view: string; playVideo: string; pauseVideo: string; unmute: string; mute: string; muted: string; soundOn: string };
+  notFound: { title: string; body: string };
+  categoryNames: Record<string, string>;
 };
 
 const translations: Record<Language, Translation> = {
@@ -19,13 +49,68 @@ const translations: Record<Language, Translation> = {
     nav: { menu: "মেনু", tagline: "রসনায় বিশুদ্ধতা", products: "সব পণ্য", categories: "ক্যাটাগরি", story: "আমাদের গল্প", search: "মসলা বা পণ্য খুঁজুন...", wishlist: "উইশলিস্ট", cart: "কার্ট", language: "English" },
     hero: {
       slides: [
-        { title: "শতভাগ খাঁটি গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", alt: "খাঁটি গুঁড়া মসলা" },
-        { title: "বাছাইকৃত প্রিমিয়াম গোটা মসলা", subtitle: "আসল এলাচ, দারুচিনি ও লবঙ্গের তীব্র সুবাস", badge: "হাতে বাছাইকৃত", button: "গোটা মসলা দেখুন", alt: "বাছাইকৃত গোটা মসলা" },
-        { title: "ধোয়া ও কাটা রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", alt: "রেডি-টু-কুক তাজা সবজি" },
-        { title: "মাসিক বাজার স্পেশাল কম্বো প্যাক", subtitle: "প্রয়োজনীয় মসলা ও রান্নার প্যাকেজে সর্বোচ্চ ২৫% পর্যন্ত সাশ্রয়", badge: "স্পেশাল অফার", button: "কম্বো প্যাক দেখুন", alt: "প্রিমিয়াম রান্নাঘর কম্বো" },
+        { title: "শতভাগ খাঁটি গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", alt: "খাঁটি গুঁড়া মসলা" },
+        { title: "বাছাইকৃত প্রিমিয়াম গোটা মসলা", subtitle: "আসল এলাচ, দারুচিনি ও লবঙ্গের তীব্র সুবাস", badge: "হাতে বাছাইকৃত", button: "গোটা মসলা দেখুন", alt: "বাছাইকৃত গোটা মসলা" },
+        { title: "ধোয়া ও কাটা রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", alt: "রেডি-টু-কুক তাজা সবজি" },
+        { title: "মাসিক বাজার স্পেশাল কম্বো প্যাক", subtitle: "প্রয়োজনীয় মসলা ও রান্নার প্যাকেজে সর্বোচ্চ ২৫% পর্যন্ত সাশ্রয়", badge: "স্পেশাল অফার", button: "কম্বো প্যাক দেখুন", alt: "প্রিমিয়াম রান্নাঘর কম্বো" },
       ],
+      avatars: ["স", "ম", "আ"],
       categories: "ক্যাটাগরি দেখুন", families: "৫,০০০+ পরিবার", familiesNote: "প্রতিদিন RAYYAN বেছে নেয়", pure: "খাঁটি", fresh: "FRESH", previous: "আগের স্লাইড", next: "পরের স্লাইড", select: "হিরো স্লাইড নির্বাচন", slide: "নম্বর স্লাইড",
     },
+    trust: [
+      { title: "১০০% খাঁটি", note: "বিশুদ্ধতার নিশ্চয়তা" },
+      { title: "ক্যামিক্যাল মুক্ত", note: "নিরাপদ, প্রাকৃতিক খাবার" },
+      { title: "ভ্যাকুয়াম প্যাকড", note: "ফ্রেশ থাকুক বেশি সময়" },
+      { title: "ক্যাশ অন ডেলিভারি", note: "পণ্য হাতে, তারপর পেমেন্ট" },
+    ],
+    categories: {
+      kicker: "আপনার রান্নাঘরের জন্য", heading: "কী খুঁজছেন আজ?", viewAll: "সব দেখুন",
+      items: [
+        { label: "গুঁড়া মসলা", count: "২৪টি পণ্য", alt: "তাজা গুঁড়া মসলা" },
+        { label: "গোটা মসলা", count: "১৮টি পণ্য", alt: "দারুচিনি এলাচ ও গোটা মসলা" },
+        { label: "রেডি-টু-কুক", count: "১২টি পণ্য", alt: "ফ্রেশ কাটা রেডি-টু-কুক সবজি" },
+        { label: "প্রিমিয়াম কম্বো", count: "৮টি পণ্য", alt: "প্রিমিয়াম মসলা কম্বো" },
+      ],
+    },
+    offer: { kicker: "এই সপ্তাহের রান্নাঘর অফার", headingBefore: "তিনটি কম্বোতে ", headingHighlight: "২০% ছাড়", timerLabel: "অফার শেষ হতে", timerValue: "০২ : ১৪ : ৩৬", cta: "অফার দেখুন" },
+    products: { kicker: "RAYYAN-এর পছন্দ", heading: "এই সপ্তাহের সেরা পণ্য", tabs: ["সবগুলো", "মসলা", "রেডি-টু-কুক"] },
+    story: {
+      kicker: "কেন RAYYAN?", headingTop: "স্বাদের শুরু হোক", headingEm: "বিশুদ্ধতা থেকে",
+      body: "আমরা বিশ্বাস করি, ভালো রান্নার জন্য ভালো উপকরণই যথেষ্ট। তাই প্রতিটি মসলা ও সবজি বেছে নিই স্বচ্ছ উৎস থেকে, রাখি তার স্বাভাবিক গন্ধ, রঙ এবং পুষ্টি।",
+      points: ["কৃষকের কাছ থেকে সরাসরি", "ছোট ব্যাচে তাজা প্যাকিং"], cta: "RAYYAN সম্পর্কে জানুন",
+      badgeNumber: "০১", badgeText: "উৎস থেকে আপনার ঘরে", imageAlt: "প্রাকৃতিক মসলা",
+    },
+    footer: { tagline: "রসনায় বিশুদ্ধতা", line: "খাঁটি খাবার, প্রতিদিনের ভালোবাসা।", copyright: "© ২০২৪ RAYYAN Bangladesh" },
+    card: { kicker: "RAYYAN GOURMET", addToCart: "কার্ট-এ যোগ করুন", quickView: "দ্রুত দেখুন", wishlist: "উইশলিস্টে যোগ করুন", cartAction: "কার্টে যোগ করুন", ingredientsAlt: "উপকরণ", off: "OFF" },
+    pdp: {
+      back: "শপিং চালিয়ে যান", home: "হোম", cart: "কার্ট", reviews: "রিভিউ", inStock: "স্টকে আছে",
+      weightHeading: "ওজন / সাইজ", variants: ["১০০ গ্রাম", "২৫০ গ্রাম", "৫০০ গ্রাম কম্বো"],
+      decrease: "পরিমাণ কমান", increase: "পরিমাণ বাড়ান", addToCart: "কার্ট-এ যোগ করুন", buyNow: "সরাসরি অর্ডার করুন",
+      deliveryTitle: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", deliveryNote: "সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা",
+      trustRow: ["১০০% অর্গানিক", "ভ্যাকুয়াম প্যাকড", "ক্যাশ অন ডেলিভারি", "২৪–৪৮ ঘণ্টা"],
+      tabs: { description: "বিবরণ", nutrition: "পুষ্টি ও উপাদান", storage: "সংরক্ষণ পদ্ধতি" },
+      tabEmpty: "এই পণ্যের জন্য তথ্য শীঘ্রই যুক্ত করা হবে।", off: "OFF",
+    },
+    cart: {
+      kicker: "আপনার শপিং ব্যাগ", title: "কার্ট", close: "কার্ট বন্ধ করুন", freeDelivery: "আপনার ডেলিভারি ফ্রি!",
+      freeDeliveryRemaining: "আর {amount} টাকার পণ্য কিনলেই ফ্রি ডেলিভারি!", subtotal: "সাবটোটাল",
+      deliveryNote: "ডেলিভারি চার্জ চেকআউটে যুক্ত হবে", checkout: "চেকআউটে যান", removeItem: "পণ্য মুছুন", defaultWeight: "২৫০ গ্রাম",
+    },
+    modal: { close: "বন্ধ করুন", chooseWeight: "ওজন বেছে নিন", reviews: "রিভিউ", addToCart: "কার্টে যোগ করুন", deliveryNote: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", inStock: "ইন স্টক", off: "OFF", variants: ["১০০ গ্রাম", "২৫০ গ্রাম", "৫০০ গ্রাম"] },
+    checkout: {
+      back: "শপিং চালিয়ে যান", secure: "নিরাপদ চেকআউট", kicker: "শেষ ধাপ", heading: "অর্ডার নিশ্চিত করুন",
+      intro: "আপনার ঠিকানা দিন, আমরা যত্ন করে প্যাক করে পাঠিয়ে দেব।", name: "আপনার নাম", namePlaceholder: "পুরো নাম লিখুন",
+      phone: "ফোন নম্বর", phonePlaceholder: "01XXXXXXXXX", address: "সম্পূর্ণ ঠিকানা", addressPlaceholder: "বাসা, রোড, এলাকা লিখুন",
+      zone: "ডেলিভারি জোন", zoneInside: "ঢাকার ভিতরে — ৳৬০", zoneOutside: "ঢাকার বাইরে — ৳১২০",
+      paymentHeading: "পেমেন্ট পদ্ধতি", cod: "ক্যাশ অন ডেলিভারি", selected: "নির্বাচিত", placeOrder: "অর্ডার নিশ্চিত করুন", emptyCart: "কার্ট খালি",
+      summaryKicker: "আপনার অর্ডার", summaryHeading: "অর্ডার সামারি", subtotal: "সাবটোটাল", delivery: "ডেলিভারি", grandTotal: "সর্বমোট",
+      benefitDelivery: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", benefitCod: "পণ্য হাতে, তারপর পেমেন্ট", secureNote: "নিরাপদ এবং বিশ্বস্ত অর্ডার",
+      successKicker: "অর্ডার গ্রহণ করা হয়েছে", successHeading: "ধন্যবাদ", successBody: "আপনার অর্ডারটি RAYYAN টিমের কাছে পৌঁছে গেছে। খুব শিগগিরই আমরা আপনার সঙ্গে যোগাযোগ করব।",
+      continueShopping: "শপিং চালিয়ে যান", adminLink: "অর্ডার ম্যানেজমেন্ট দেখুন", orderPlacedAlert: "ধন্যবাদ! আপনার অর্ডারটি গ্রহণ করা হয়েছে।",
+    },
+    gallery: { package: "প্যাকেজ", ingredients: "উপকরণ", video: "ভিডিও", media: "পণ্যের মিডিয়া", view: "দেখুন", playVideo: "ভিডিও চালান", pauseVideo: "ভিডিও থামান", unmute: "শব্দ চালু করুন", mute: "শব্দ বন্ধ করুন", muted: "মিউটেড", soundOn: "শব্দ চালু" },
+    notFound: { title: "পণ্যটি পাওয়া যায়নি", body: "অ্যাডমিন থেকে পণ্যটি মুছে ফেলা হয়েছে অথবা লিংকটি সঠিক নয়।" },
+    categoryNames: { "গুঁড়া মসলা": "গুঁড়া মসলা", "গোটা মসলা": "গোটা মসলা", "রেডি-টু-কুক": "রেডি-টু-কুক", "প্রিমিয়াম কম্বো": "প্রিমিয়াম কম্বো" },
   },
   en: {
     topbar: { delivery: "Cash on delivery in Dhaka within 24–48 hours", nationwide: "Nationwide delivery", from: "from ৳60" },
@@ -37,10 +122,83 @@ const translations: Record<Language, Translation> = {
         { title: "Washed and cut ready-to-cook vegetables", subtitle: "Vacuum-packed fresh cuts that cut your cooking time in half", badge: "Vacuum sealed", button: "Order vegetables", alt: "Fresh ready-to-cook vegetables" },
         { title: "Monthly grocery special combo pack", subtitle: "Save up to 25% on essential spices and cooking bundles", badge: "Special offer", button: "Explore combo pack", alt: "Premium kitchen combo" },
       ],
+      avatars: ["S", "M", "A"],
       categories: "Explore categories", families: "5,000+ families", familiesNote: "choose RAYYAN every day", pure: "Pure", fresh: "FRESH", previous: "Previous slide", next: "Next slide", select: "Select hero slide", slide: "slide",
     },
+    trust: [
+      { title: "100% pure", note: "Guaranteed purity" },
+      { title: "Chemical free", note: "Safe, natural food" },
+      { title: "Vacuum packed", note: "Stays fresh for longer" },
+      { title: "Cash on delivery", note: "Pay once it reaches you" },
+    ],
+    categories: {
+      kicker: "For your kitchen", heading: "What are you looking for today?", viewAll: "View all",
+      items: [
+        { label: "Powdered spices", count: "24 products", alt: "Fresh powdered spices" },
+        { label: "Whole spices", count: "18 products", alt: "Cinnamon, cardamom and whole spices" },
+        { label: "Ready to cook", count: "12 products", alt: "Freshly cut ready-to-cook vegetables" },
+        { label: "Premium combos", count: "8 products", alt: "Premium spice combo" },
+      ],
+    },
+    offer: { kicker: "This week's kitchen offer", headingBefore: "Save ", headingHighlight: "20% on three combos", timerLabel: "Offer ends in", timerValue: "02 : 14 : 36", cta: "View offer" },
+    products: { kicker: "RAYYAN's picks", heading: "This week's best products", tabs: ["All", "Spices", "Ready to cook"] },
+    story: {
+      kicker: "Why RAYYAN?", headingTop: "Let flavor begin", headingEm: "with purity",
+      body: "We believe good cooking needs nothing more than good ingredients. So we choose every spice and vegetable from transparent sources, keeping their natural aroma, color and nutrition intact.",
+      points: ["Straight from the farmer", "Freshly packed in small batches"], cta: "Learn about RAYYAN",
+      badgeNumber: "01", badgeText: "From the source to your home", imageAlt: "Natural spices",
+    },
+    footer: { tagline: "Purity in every taste", line: "Pure food, everyday love.", copyright: "© 2024 RAYYAN Bangladesh" },
+    card: { kicker: "RAYYAN GOURMET", addToCart: "Add to cart", quickView: "Quick view", wishlist: "Add to wishlist", cartAction: "Add to cart", ingredientsAlt: "ingredients", off: "OFF" },
+    pdp: {
+      back: "Continue shopping", home: "Home", cart: "Cart", reviews: "reviews", inStock: "In stock",
+      weightHeading: "Weight / size", variants: ["100 g", "250 g", "500 g combo"],
+      decrease: "Decrease quantity", increase: "Increase quantity", addToCart: "Add to cart", buyNow: "Order now",
+      deliveryTitle: "Delivery in Dhaka within 24–48 hours", deliveryNote: "Cash on delivery available nationwide",
+      trustRow: ["100% organic", "Vacuum packed", "Cash on delivery", "24–48 hours"],
+      tabs: { description: "Description", nutrition: "Nutrition & ingredients", storage: "Storage" },
+      tabEmpty: "Information for this product is coming soon.", off: "OFF",
+    },
+    cart: {
+      kicker: "Your shopping bag", title: "Cart", close: "Close cart", freeDelivery: "Your delivery is free!",
+      freeDeliveryRemaining: "Spend {amount} more for free delivery!", subtotal: "Subtotal",
+      deliveryNote: "Delivery charge is added at checkout", checkout: "Go to checkout", removeItem: "Remove item", defaultWeight: "250 g",
+    },
+    modal: { close: "Close", chooseWeight: "Choose a weight", reviews: "reviews", addToCart: "Add to cart", deliveryNote: "Delivery in Dhaka within 24–48 hours", inStock: "In stock", off: "OFF", variants: ["100 g", "250 g", "500 g"] },
+    checkout: {
+      back: "Continue shopping", secure: "Secure checkout", kicker: "Final step", heading: "Confirm your order",
+      intro: "Share your address and we will pack it with care and send it over.", name: "Your name", namePlaceholder: "Enter your full name",
+      phone: "Phone number", phonePlaceholder: "01XXXXXXXXX", address: "Full address", addressPlaceholder: "House, road, area",
+      zone: "Delivery zone", zoneInside: "Inside Dhaka — ৳60", zoneOutside: "Outside Dhaka — ৳120",
+      paymentHeading: "Payment method", cod: "Cash on delivery", selected: "Selected", placeOrder: "Confirm order", emptyCart: "Cart is empty",
+      summaryKicker: "Your order", summaryHeading: "Order summary", subtotal: "Subtotal", delivery: "Delivery", grandTotal: "Total",
+      benefitDelivery: "Delivery in Dhaka within 24–48 hours", benefitCod: "Pay once it reaches you", secureNote: "Safe and trusted ordering",
+      successKicker: "Order received", successHeading: "Thank you", successBody: "Your order has reached the RAYYAN team. We will get in touch with you very soon.",
+      continueShopping: "Continue shopping", adminLink: "Open order management", orderPlacedAlert: "Thank you! Your order has been received.",
+    },
+    gallery: { package: "Package", ingredients: "Ingredients", video: "Video", media: "Product media", view: "view", playVideo: "Play video", pauseVideo: "Pause video", unmute: "Turn sound on", mute: "Turn sound off", muted: "Muted", soundOn: "Sound on" },
+    notFound: { title: "Product not found", body: "The product was removed from the admin panel, or the link is not correct." },
+    categoryNames: { "গুঁড়া মসলা": "Powdered spices", "গোটা মসলা": "Whole spices", "রেডি-টু-কুক": "Ready to cook", "প্রিমিয়াম কম্বো": "Premium combos" },
   },
 };
+
+/** Locale-aware number formatting: Bengali digits for bn, Western digits for en. */
+export function formatNumber(value: number, language: Language) {
+  return value.toLocaleString(language === "bn" ? "bn-BD" : "en-US");
+}
+
+export function formatPrice(value: number, language: Language) {
+  return `৳${formatNumber(value, language)}`;
+}
+
+/** Product titles live on the record itself: bn for Bangla, name for English. */
+export function productTitle(product: { name: string; bn: string }, language: Language) {
+  return language === "en" ? product.name : product.bn;
+}
+
+export function localizeCategory(category: string, language: Language) {
+  return translations[language].categoryNames[category] || category;
+}
 
 type LanguageContextValue = { language: Language; toggleLanguage: () => void; t: Translation };
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -59,6 +217,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const savedLanguage = window.localStorage.getItem("rayyan-language");
       return savedLanguage === "en" ? "en" : "bn";
     },
+    // Server snapshot. React also uses this for the hydration pass, so the first
+    // client render matches the server HTML exactly; the stored language is
+    // applied on the re-render that follows.
     () => "bn",
   );
   const toggleLanguage = () => {
