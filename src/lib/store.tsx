@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { PaymentMethod } from "@/lib/payment";
-import { products as seedProducts, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
@@ -31,6 +31,8 @@ type StoredCartItem = {
 
 type StoreContextValue = {
   products: Product[];
+  /** False until the first catalog load settles, so an empty list is not read as "no products". */
+  catalogReady: boolean;
   catalogSource: "cloud" | "local";
   pendingProducts: Product[];
   cart: Product[];
@@ -100,42 +102,43 @@ function normalizeCart(value: unknown, availableProducts: Product[]): StoredCart
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(seedProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [catalogReady, setCatalogReady] = useState(false);
   const [catalogSource, setCatalogSource] = useState<"cloud" | "local">("cloud");
   const [pendingProducts, setPendingProductsState] = useState<Product[]>([]);
   const [syncProgress, setSyncProgress] = useState<{ current: number; total: number } | null>(null);
-  const [storedCart, setStoredCart] = useState<StoredCartItem[]>([{ productId: String(seedProducts[0].id), quantity: 1 }]);
+  const [storedCart, setStoredCart] = useState<StoredCartItem[]>([]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     let active = true;
     const loadStore = async () => {
-      let activeProducts = seedProducts;
+      let activeProducts: Product[] = [];
       let localProducts: Product[] | null = null;
+      let deletedIds = new Set<number>();
+      try { deletedIds = new Set(await getDeletedProductIds()); } catch (error) { console.warn("Unable to read deleted product ids.", error); }
       try { localProducts = await getStoredProducts(); } catch (error) { console.warn("Unable to read the local product catalog.", error); }
       try {
         activeProducts = await fetchCatalog();
-        const deletedIds = new Set(await getDeletedProductIds());
-        const queuedProducts = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
-        const cloudIds = new Set(activeProducts.map((product) => product.id));
-        const legacyLocalProducts = (localProducts || []).filter((product) => !cloudIds.has(product.id) && !deletedIds.has(product.id));
-        const pending = [...queuedProducts, ...legacyLocalProducts.filter((product) => !queuedProducts.some((queued) => queued.id === product.id))];
+        // Only products the admin explicitly queued while offline are re-added. The cached
+        // catalog is never merged back in: it can still hold products deleted since it was
+        // written, and merging it would resurrect them.
+        const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
+        await setPendingProducts(pending);
+        await cacheCatalog(activeProducts);
         if (pending.length > 0) {
-          await setPendingProducts(pending);
-          activeProducts = [...activeProducts, ...pending];
-        } else {
-          await cacheCatalog(activeProducts);
+          const cloudIds = new Set(activeProducts.map((product) => product.id));
+          activeProducts = [...activeProducts, ...pending.filter((product) => !cloudIds.has(product.id))];
         }
         if (active) setCatalogSource("cloud");
       } catch (error) {
         console.warn("Unable to load products from the API; using the local catalog.", error);
-        activeProducts = localProducts || seedProducts;
+        activeProducts = (localProducts || []).filter((product) => !deletedIds.has(product.id));
         if (active) setCatalogSource("local");
       }
       if (active) {
         try {
-          const deletedIds = new Set(await getDeletedProductIds());
           const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
           setPendingProductsState(pending);
           const cloudIds = new Set(activeProducts.map((product) => product.id));
@@ -144,8 +147,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           console.warn("Unable to read pending local products.", error);
         }
         setProducts(activeProducts);
-        setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, [{ productId: String(seedProducts[0].id), quantity: 1 }]), activeProducts));
+        setStoredCart(normalizeCart(readStorage<unknown>(CART_KEY, []), activeProducts));
         setOrders(readStorage(ORDERS_KEY, []));
+        setCatalogReady(true);
         setHydrated(true);
       }
     };
@@ -163,6 +167,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: StoreContextValue = {
     products,
+    catalogReady,
     catalogSource,
     pendingProducts,
     syncProgress,

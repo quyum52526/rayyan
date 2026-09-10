@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { products as seedProducts, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 const localCatalogPath = path.join(process.cwd(), "src/data/products.json");
 const catalogBlobPath = "catalog/products.json";
@@ -8,10 +8,12 @@ const catalogBlobPath = "catalog/products.json";
 /**
  * Where a catalog read actually came from.
  * "blob" / "local" are real reads of a real catalog and are safe to merge onto.
- * "seed" means the catalog genuinely does not exist yet — safe to READ, never safe
- * to blind-write over, because a merge onto seed data would destroy a real catalog.
+ * "empty" means the catalog genuinely does not exist yet: the read yields no products
+ * at all. It is never backfilled from bundled sample data, so a deleted product can
+ * never come back, and it is not safe to blind-write over in case a real catalog
+ * exists but was unreadable.
  */
-export type CatalogSource = "blob" | "local" | "seed";
+export type CatalogSource = "blob" | "local" | "empty";
 
 export type CatalogRead = {
   products: Product[];
@@ -45,7 +47,7 @@ async function readLocalCatalog(): Promise<CatalogRead> {
     raw = await fs.readFile(localCatalogPath, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
-      return { products: seedProducts, source: "seed" };
+      return { products: [], source: "empty" };
     }
     throw new CatalogReadError(`Failed to read local catalog at ${localCatalogPath}.`, { cause: error });
   }
@@ -86,7 +88,7 @@ export async function readCatalog(): Promise<CatalogRead> {
   const targetBlob = blobs.find((blob) => blob.pathname === catalogBlobPath);
   if (!targetBlob) {
     // list() succeeded and the catalog genuinely is not there: empty store / first run.
-    return { products: seedProducts, source: "seed" };
+    return { products: [], source: "empty" };
   }
 
   let response: Response;
@@ -121,18 +123,18 @@ export async function getProducts(): Promise<Product[]> {
 export type SaveProductsOptions = {
   /** Provenance of the catalog these products were merged onto. */
   baseSource: CatalogSource;
-  /** Opt in to writing onto seed data. Only for deliberate first-time seeding. */
-  allowSeedBase?: boolean;
+  /** Opt in to writing onto an empty catalog. Only for deliberate first-time writes. */
+  allowEmptyBase?: boolean;
 };
 
 export async function saveProducts(
   nextProducts: Product[],
   options: SaveProductsOptions
 ): Promise<Product[]> {
-  if (options.baseSource === "seed" && !options.allowSeedBase) {
+  if (options.baseSource === "empty" && !options.allowEmptyBase) {
     throw new CatalogWriteRefusedError(
-      "Refusing to save: the catalog being written was merged onto seed data, not a real catalog read. " +
-        "Pass allowSeedBase: true only to deliberately seed an empty store."
+      "Refusing to save: the catalog being written was merged onto an empty catalog, not a real catalog read. " +
+        "Pass allowEmptyBase: true only to deliberately write the first catalog."
     );
   }
 

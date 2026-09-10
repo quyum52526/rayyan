@@ -1,0 +1,12 @@
+:root{
+  --ease-standard:ease; /* @kind other */
+  --dur-fast:.2s; /* @kind other */
+  --dur-medium:.3s; /* @kind other */
+  --dur-slow:.5s; /* @kind other */
+  --dur-hero:.55s; /* @kind other */
+  --lift-card:translateY(-5px); /* @kind other */
+  --lift-button:translateY(-2px); /* @kind other */
+  --zoom-media:scale(1.05); /* @kind other */
+  --zoom-tile:scale(1.1); /* @kind other */
+  --zoom-gallery:scale(2.15); /* @kind other */
+}

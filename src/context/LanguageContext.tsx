@@ -7,6 +7,7 @@ export type Language = "bn" | "en";
 type Slide = { title: string; subtitle: string; badge: string; button: string; alt: string };
 type TrustItem = { title: string; note: string };
 type CategoryCopy = { label: string; count: string; alt: string };
+type FooterLink = { label: string; href: string };
 
 type Translation = {
   topbar: { delivery: string; nationwide: string; from: string };
@@ -21,7 +22,16 @@ type Translation = {
   offer: { kicker: string; headingBefore: string; headingHighlight: string; timerLabel: string; timerValue: string; cta: string };
   products: { kicker: string; heading: string; tabs: string[]; emptyTitle: string; emptyBody: string };
   story: { kicker: string; headingTop: string; headingEm: string; body: string; points: string[]; cta: string; badgeNumber: string; badgeText: string; imageAlt: string };
-  footer: { tagline: string; line: string; copyright: string };
+  footer: {
+    tagline: string; copyright: string; about: string; familiesCount: string; familiesNote: string;
+    newsletterKicker: string; newsletterHeading: string; newsletterHighlight: string; newsletterNote: string; newsletterCode: string;
+    newsletterPlaceholder: string; newsletterButton: string; newsletterSuccess: string; newsletterInvalid: string;
+    categoriesTitle: string; categoryLinks: FooterLink[]; viewAll: string;
+    helpTitle: string; helpLinks: FooterLink[];
+    contactTitle: string; contactLabel: string; phone: string; email: string; address: string[]; hours: string;
+    paymentLabel: string; paymentMethods: string[]; secureNote: string;
+    legalLinks: FooterLink[]; packedIn: string;
+  };
   card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string };
   pdp: {
     back: string; home: string; cart: string; reviews: string; inStock: string; weightHeading: string; variants: string[];
@@ -85,7 +95,43 @@ const translations: Record<Language, Translation> = {
       points: ["কৃষকের কাছ থেকে সরাসরি", "ছোট ব্যাচে তাজা প্যাকিং"], cta: "RAYYAN সম্পর্কে জানুন",
       badgeNumber: "০১", badgeText: "উৎস থেকে আপনার ঘরে", imageAlt: "প্রাকৃতিক মসলা",
     },
-    footer: { tagline: "রসনায় বিশুদ্ধতা", line: "খাঁটি খাবার, প্রতিদিনের ভালোবাসা।", copyright: "© ২০২৪ RAYYAN Bangladesh" },
+    footer: {
+      tagline: "রসনায় বিশুদ্ধতা", copyright: "© ২০২৬ RAYYAN Bangladesh · সর্বস্বত্ব সংরক্ষিত",
+      about: "আমরা বিশ্বাস করি, ভালো রান্নার জন্য ভালো উপকরণই যথেষ্ট। খাঁটি মসলা, অর্গানিক প্যান্ট্রি স্ট্যাপল ও রেডি-টু-কুক সবজি — সরাসরি আপনার ঘরে।",
+      familiesCount: "৫,০০০+", familiesNote: "পরিবার আমাদের রান্নাঘরে ভরসা রাখে",
+      newsletterKicker: "RAYYAN NEWSLETTER", newsletterHeading: "নতুন পণ্য আর অফারের খবর", newsletterHighlight: "আগে পান",
+      newsletterNote: "প্রথম অর্ডারে ১০% ছাড় পেতে কোড ব্যবহার করুন", newsletterCode: "RAYYAN25",
+      newsletterPlaceholder: "আপনার ইমেইল দিন", newsletterButton: "সাবস্ক্রাইব করুন",
+      newsletterSuccess: "ধন্যবাদ! নতুন অফারের খবর আপনার ইমেইলে যাবে।", newsletterInvalid: "সঠিক ইমেইল ঠিকানা দিন।",
+      categoriesTitle: "CATEGORIES",
+      categoryLinks: [
+        { label: "গুঁড়া মসলা", href: "/category/powder-spices" },
+        { label: "গোটা মসলা", href: "/category/whole-spices" },
+        { label: "রেডি-টু-কুক সবজি", href: "/category/ready-to-cook" },
+        { label: "অর্গানিক প্যান্ট্রি", href: "/category/pantry" },
+        { label: "কম্বো প্যাক", href: "/category/combos" },
+      ],
+      viewAll: "সব পণ্য দেখুন",
+      helpTitle: "HELP",
+      helpLinks: [
+        { label: "অর্ডার ট্র্যাক করুন", href: "/#products" },
+        { label: "ডেলিভারি ও পেমেন্ট", href: "/#products" },
+        { label: "রিটার্ন ও রিফান্ড", href: "/#products" },
+        { label: "প্রশ্নোত্তর", href: "/#products" },
+        { label: "আমাদের গল্প", href: "/#story" },
+        { label: "পাইকারি অর্ডার", href: "/#products" },
+      ],
+      contactTitle: "CONTACT", contactLabel: "অর্ডার ও সহায়তা", phone: "09610 000 000", email: "hello@rayyan.com.bd",
+      address: ["হাউস ১২, রোড ৫, ধানমন্ডি,", "ঢাকা ১২০৫, বাংলাদেশ"], hours: "শনি–বৃহস্পতি, সকাল ১০টা – রাত ৮টা",
+      paymentLabel: "PAYMENT", paymentMethods: ["ক্যাশ অন ডেলিভারি", "বিকাশ", "নগদ", "রকেট", "VISA · MASTERCARD"],
+      secureNote: "নিরাপদ এবং বিশ্বস্ত অর্ডার",
+      legalLinks: [
+        { label: "শর্তাবলি", href: "/#products" },
+        { label: "প্রাইভেসি নীতি", href: "/#products" },
+        { label: "রিফান্ড নীতি", href: "/#products" },
+      ],
+      packedIn: "✦ ঢাকায় প্যাক করা",
+    },
     card: { kicker: "RAYYAN GOURMET", addToCart: "কার্ট-এ যোগ করুন", quickView: "দ্রুত দেখুন", wishlist: "উইশলিস্টে যোগ করুন", cartAction: "কার্টে যোগ করুন", ingredientsAlt: "উপকরণ", off: "OFF" },
     pdp: {
       back: "শপিং চালিয়ে যান", home: "হোম", cart: "কার্ট", reviews: "রিভিউ", inStock: "স্টকে আছে",
@@ -166,7 +212,43 @@ const translations: Record<Language, Translation> = {
       points: ["Straight from the farmer", "Freshly packed in small batches"], cta: "Learn about RAYYAN",
       badgeNumber: "01", badgeText: "From the source to your home", imageAlt: "Natural spices",
     },
-    footer: { tagline: "Purity in every taste", line: "Pure food, everyday love.", copyright: "© 2024 RAYYAN Bangladesh" },
+    footer: {
+      tagline: "Purity in every taste", copyright: "© 2026 RAYYAN Bangladesh · All rights reserved",
+      about: "We believe good cooking only needs good ingredients. Pure spices, organic pantry staples and ready-to-cook vegetables — delivered straight to your home.",
+      familiesCount: "5,000+", familiesNote: "families trust our kitchen",
+      newsletterKicker: "RAYYAN NEWSLETTER", newsletterHeading: "Get new products and offers", newsletterHighlight: "first",
+      newsletterNote: "Use this code for 10% off your first order", newsletterCode: "RAYYAN25",
+      newsletterPlaceholder: "Enter your email", newsletterButton: "Subscribe",
+      newsletterSuccess: "Thanks! New offers are on their way to your inbox.", newsletterInvalid: "Enter a valid email address.",
+      categoriesTitle: "CATEGORIES",
+      categoryLinks: [
+        { label: "Powder Spices", href: "/category/powder-spices" },
+        { label: "Whole Spices", href: "/category/whole-spices" },
+        { label: "Ready-to-Cook Vegetables", href: "/category/ready-to-cook" },
+        { label: "Organic Pantry", href: "/category/pantry" },
+        { label: "Combo Packs", href: "/category/combos" },
+      ],
+      viewAll: "View all products",
+      helpTitle: "HELP",
+      helpLinks: [
+        { label: "Track your order", href: "/#products" },
+        { label: "Delivery & payment", href: "/#products" },
+        { label: "Returns & refunds", href: "/#products" },
+        { label: "FAQ", href: "/#products" },
+        { label: "Our story", href: "/#story" },
+        { label: "Wholesale orders", href: "/#products" },
+      ],
+      contactTitle: "CONTACT", contactLabel: "Orders & support", phone: "09610 000 000", email: "hello@rayyan.com.bd",
+      address: ["House 12, Road 5, Dhanmondi,", "Dhaka 1205, Bangladesh"], hours: "Sat–Thu, 10:00 AM – 8:00 PM",
+      paymentLabel: "PAYMENT", paymentMethods: ["Cash on delivery", "bKash", "Nagad", "Rocket", "VISA · MASTERCARD"],
+      secureNote: "Safe and trusted ordering",
+      legalLinks: [
+        { label: "Terms", href: "/#products" },
+        { label: "Privacy policy", href: "/#products" },
+        { label: "Refund policy", href: "/#products" },
+      ],
+      packedIn: "✦ Packed in Dhaka",
+    },
     card: { kicker: "RAYYAN GOURMET", addToCart: "Add to cart", quickView: "Quick view", wishlist: "Add to wishlist", cartAction: "Add to cart", ingredientsAlt: "ingredients", off: "OFF" },
     pdp: {
       back: "Continue shopping", home: "Home", cart: "Cart", reviews: "reviews", inStock: "In stock",

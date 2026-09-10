@@ -18,11 +18,3 @@ export type Product = {
   nutrition?: string;
   storageInstructions?: string;
 };
-
-import catalog from "@/data/products.json";
-
-export const products: Product[] = catalog as Product[];
-
-export function getProductBySlug(slug: string) {
-  return products.find((product) => product.slug === slug);
-}

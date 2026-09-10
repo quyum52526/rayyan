@@ -1,0 +1,40 @@
+:root{
+  --font-display:'Marcellus',serif;          /* logo + English/Bangla headlines */
+  --font-bangla:'Hind Siliguri',sans-serif;  /* all Bangla UI copy, buttons, prices */
+  --font-ui:'Manrope',sans-serif;            /* English UI, numerals, SKUs, badges */
+  --font-arabic:'Amiri',serif;               /* ريان calligraphy in the mark */
+
+  /* Display scale (Marcellus, weight 400 always) */
+  --type-hero:clamp(42px,5vw,70px);
+  --type-h1:49px;
+  --type-h2:43px;
+  --type-h3:34px;
+  --type-h4:32px;
+  --type-h5:27px;
+  --type-h6:24px;
+
+  /* Bangla / UI scale */
+  --type-body:15px;
+  --type-body-sm:13px;
+  --type-label:12px;
+  --type-micro:11px;
+  --type-nano:10px;
+  --type-kicker:12px;
+
+  --leading-hero:1.1;
+  --leading-display:1.2;
+  --leading-body:1.8;
+  --leading-tight:1.35;
+
+  --tracking-kicker:.09em;
+  --tracking-logo:.12em;
+  --tracking-tagline:.13em;
+  --tracking-badge:.04em;
+  --tracking-eyebrow:.14em;
+
+  --weight-regular:400;
+  --weight-medium:500;
+  --weight-semibold:600;
+  --weight-bold:700;
+  --weight-black:800;
+}

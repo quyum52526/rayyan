@@ -1,0 +1,47 @@
+/* Base palette — hex values taken from the RAYYAN brand guide (Rayyan E-Commerce Logo
+   Design.pdf, section 04 · COLOUR). Where the shipped web app rounds a value slightly, the
+   guide wins; the web variant is kept alongside for exact recreation work. */
+:root{
+  --rayyan-maroon:#8A1538;
+  --rayyan-maroon-web:#841538;
+  --rayyan-maroon-deep:#5C0E26;
+  --rayyan-gold:#C79A3C;
+  --rayyan-gold-web:#c79430;
+  --rayyan-haldi:#E8A72B;
+  --rayyan-green:#3E6B4F;
+  --rayyan-green-web:#2e7d32;
+  --rayyan-ivory:#FBF7F0;
+  --rayyan-ink:#22201D;
+
+  /* Warm neutrals lifted from globals.css */
+  --sand-50:#fffdf9;
+  --sand-100:#f5f0e9;
+  --sand-200:#f3eadb;
+  --sand-300:#f2e8d9;
+  --sand-400:#eadaca;
+  --sand-500:#e9dfbd;
+  --line-100:#eee5db;
+  --line-200:#eadfd1;
+  --line-300:#d9cbbd;
+  --line-400:#cdbfb1;
+  --ink-muted:#6b7280;
+  --ink-soft:#675d57;
+  --ink-faint:#a3958b;
+
+  /* Category / tonal hero grounds */
+  --tone-powder:#f2e8d9;
+  --tone-whole:#e9dfbd;
+  --tone-fresh:#dcebdd;
+  --tone-combo:#ead3d7;
+
+  /* Status */
+  --status-danger:#a33232;
+  --status-low-stock:#be572f;
+  --status-success:#35703b;
+  --status-success-bg:#dfead8;
+
+  /* Alphas used verbatim in the app */
+  --wash-maroon-08:#8415381a;
+  --wash-maroon-25:#5c0e6e00;
+  --scrim-modal:#24151b99;
+}

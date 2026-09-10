@@ -1,0 +1,24 @@
+/* RAYYAN is a square-corner brand: cards, buttons, inputs and badges are all 0px.
+   The only curves are full circles (icon buttons, avatars, stamps) and the 12px
+   category tile. */
+:root{
+  --radius-none:0;
+  --radius-tile:12px;
+  --radius-pill:999px;
+  --radius-circle:50%;
+
+  --border-hairline:1px solid var(--line-200);
+  --border-card:1px solid var(--line-100);
+  --border-input:1px solid var(--line-300);
+  --border-strong:1px solid var(--rayyan-maroon-deep);
+  --border-dashed:1px dashed #d5c1ae; /* @kind other */
+
+  /* Shadows are rare, warm and maroon-tinted — never neutral grey */
+  --shadow-none:none;
+  --shadow-card-hover:0 16px 34px #5c0e2614;
+  --shadow-button-hover:0 8px 18px #9c631e26;
+  --shadow-float:0 4px 14px #22201d22;
+  --shadow-modal:0 20px 60px #24151b40;
+  --shadow-drawer:-15px 0 45px #24151b2e;
+  --shadow-hero-dish:20px 30px 60px #5c0e2630;
+}

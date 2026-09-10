@@ -1,0 +1,44 @@
+:root{
+  /* Text */
+  --text-heading:var(--rayyan-maroon-deep);
+  --text-body:var(--rayyan-ink);
+  --text-prose:var(--ink-soft);
+  --text-muted:var(--ink-muted);
+  --text-accent:var(--rayyan-maroon);
+  --text-price:var(--rayyan-maroon);
+  --text-on-maroon:#ffffff;
+  --text-on-maroon-soft:#d8bfaa;
+  --text-tagline:var(--rayyan-gold);
+
+  /* Surfaces */
+  --surface-page:var(--rayyan-ivory);
+  --surface-card:#ffffff;
+  --surface-raised:var(--sand-50);
+  --surface-tint:var(--sand-300);
+  --surface-story:var(--sand-400);
+  --surface-app:var(--sand-100);
+  --surface-inverse:var(--rayyan-maroon-deep);
+  --surface-media:#eee4d7;
+
+  /* Lines */
+  --border-subtle:var(--line-200);
+  --border-card-color:var(--line-100);
+  --border-field:var(--line-300);
+
+  /* Actions */
+  --action-primary-bg:var(--rayyan-haldi);
+  --action-primary-fg:var(--rayyan-ink);
+  --action-secondary-bg:var(--rayyan-maroon-deep);
+  --action-secondary-fg:#ffffff;
+  --action-dark-bg:var(--rayyan-ink);
+  --action-ghost-border:#c88d94;
+  --focus-ring:var(--rayyan-maroon);
+
+  /* Semantic categories */
+  --category-fresh:var(--rayyan-green);
+  --badge-discount-bg:var(--rayyan-gold);
+  --badge-discount-fg:#ffffff;
+  --badge-offer-bg:var(--rayyan-haldi);
+}
+a{color:var(--rayyan-maroon);text-decoration:none}
+a:hover{color:var(--rayyan-maroon-deep)}

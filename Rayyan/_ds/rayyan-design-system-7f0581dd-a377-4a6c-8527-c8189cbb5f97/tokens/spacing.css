@@ -1,0 +1,27 @@
+:root{
+  --space-1:4px;--space-2:7px;--space-3:8px;--space-4:10px;--space-5:12px;
+  --space-6:15px;--space-7:16px;--space-8:20px;--space-9:22px;--space-10:26px;
+  --space-11:32px;--space-12:42px;--space-13:55px;--space-14:68px;--space-15:85px;
+
+  --container:1180px;
+  --container-gutter:40px;
+  --container-gutter-sm:30px;
+
+  --section-y:85px;
+  --section-y-sm:55px;
+
+  --grid-gap-product:15px;
+  --grid-gap-category:16px;
+  --grid-gap-metric:14px;
+
+  --header-h:82px;
+  --header-h-sm:69px;
+  --topbar-h:35px;
+  --pdp-header-h:78px;
+
+  --control-h:42px;
+  --control-h-lg:49px;
+  --control-h-md:47px;
+  --icon-btn:34px;
+  --hit-min:44px;
+}

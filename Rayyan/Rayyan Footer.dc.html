@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/colors.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/typography.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/borders.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/motion.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/tokens/semantic.css">
+<link rel="stylesheet" href="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/styles.css">
+<script src="_ds/rayyan-design-system-7f0581dd-a377-4a6c-8527-c8189cbb5f97/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: #FBF7F0; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #E8A72B; }
+</style>
+</helmet>
+
+<div style="background:#FBF7F0; font-family:'Hind Siliguri',sans-serif; color:#22201D">
+
+  <sc-if value="{{ showTrustStrip }}" hint-placeholder-val="{{ true }}">
+    <div style="border-top:1px solid #eadfd1; background:#FFFDF9">
+      <div style="width:min(1180px,calc(100% - 40px)); margin-inline:auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); padding:34px 0">
+        <div style="display:flex; gap:14px; padding:6px 26px 6px 0; border-right:1px solid #eadfd1">
+          <span style="color:#8A1538; margin-top:2px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="truck" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+          <div>
+            <div style="font:600 13px 'Hind Siliguri',sans-serif; color:#22201D">ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি</div>
+            <div style="font:400 12px 'Hind Siliguri',sans-serif; color:#675d57; margin-top:3px">ঢাকার ভিতরে ৳৬০ · বাইরে ৳১২০</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:14px; padding:6px 26px; border-right:1px solid #eadfd1">
+          <span style="color:#3E6B4F; margin-top:2px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+          <div>
+            <div style="font:600 13px 'Hind Siliguri',sans-serif; color:#22201D">১০০% খাঁটি, ক্যামিক্যাল মুক্ত</div>
+            <div style="font:400 12px 'Hind Siliguri',sans-serif; color:#675d57; margin-top:3px">কৃষকের কাছ থেকে সরাসরি</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:14px; padding:6px 26px; border-right:1px solid #eadfd1">
+          <span style="color:#8A1538; margin-top:2px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="package" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+          <div>
+            <div style="font:600 13px 'Hind Siliguri',sans-serif; color:#22201D">ভ্যাকুয়াম প্যাকড</div>
+            <div style="font:400 12px 'Hind Siliguri',sans-serif; color:#675d57; margin-top:3px">ছোট ব্যাচে তাজা প্যাকিং</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:14px; padding:6px 0 6px 26px">
+          <span style="color:#8A1538; margin-top:2px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="shopping-bag" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+          <div>
+            <div style="font:600 13px 'Hind Siliguri',sans-serif; color:#22201D">ক্যাশ অন ডেলিভারি</div>
+            <div style="font:400 12px 'Hind Siliguri',sans-serif; color:#675d57; margin-top:3px">পণ্য হাতে, তারপর পেমেন্ট</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <footer style="background:#5C0E26; color:#ffffff">
+
+    <sc-if value="{{ showNewsletter }}" hint-placeholder-val="{{ true }}">
+      <div style="border-bottom:1px solid #ffffff1f">
+        <div style="width:min(1180px,calc(100% - 40px)); margin-inline:auto; padding:44px 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:28px 60px; align-items:center">
+          <div>
+            <div style="font:700 9px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#C79A3C; display:flex; align-items:center; gap:8px">
+              <x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="sparkles" size="{{ 12 }}" hint-size="12px,12px"></x-import>
+              RAYYAN NEWSLETTER
+            </div>
+            <h2 style="font:400 30px/1.25 'Marcellus',serif; margin:12px 0 0; color:#ffffff">নতুন পণ্য আর অফারের খবর <span style="color:#E8A72B">আগে পান</span></h2>
+            <p style="font:400 14px/1.7 'Hind Siliguri',sans-serif; color:#d8bfaa; margin:10px 0 0; max-width:44ch">প্রথম অর্ডারে ১০% ছাড় পেতে কোড ব্যবহার করুন <span style="font:700 13px 'Manrope',sans-serif; letter-spacing:.1em; color:#ffffff; border-bottom:1px dashed #C79A3C">RAYYAN25</span></p>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px">
+            <input type="email" placeholder="আপনার ইমেইল দিন" style="flex:1 1 210px; min-width:0; padding:14px 16px; background:#ffffff0f; border:1px solid #ffffff33; border-radius:0; color:#ffffff; font:400 14px 'Hind Siliguri',sans-serif; outline:none" style-focus="border-color:#E8A72B">
+            <button type="button" style="padding:14px 24px; background:#E8A72B; color:#22201D; border:none; border-radius:0; font:700 13px 'Hind Siliguri',sans-serif; cursor:pointer; display:flex; align-items:center; gap:8px; transition:transform .2s, box-shadow .2s" style-hover="transform:translateY(-2px); box-shadow:0 8px 18px #9c631e26">
+              সাবস্ক্রাইব করুন
+              <x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="arrow-right" size="{{ 15 }}" hint-size="15px,15px"></x-import>
+            </button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="width:min(1180px,calc(100% - 40px)); margin-inline:auto; padding:56px 0 46px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:44px 40px">
+
+      <div style="min-width:0">
+        <div style="font:400 30px 'Marcellus',serif; letter-spacing:.12em; color:#ffffff">RAYYAN</div>
+        <div style="font:400 12px 'Hind Siliguri',sans-serif; letter-spacing:.06em; color:#C79A3C; margin-top:4px">রসনায় বিশুদ্ধতা</div>
+        <p style="font:400 14px/1.8 'Hind Siliguri',sans-serif; color:#d8bfaa; margin:22px 0 0; max-width:34ch">আমরা বিশ্বাস করি, ভালো রান্নার জন্য ভালো উপকরণই যথেষ্ট। খাঁটি মসলা, অর্গানিক প্যান্ট্রি স্ট্যাপল ও রেডি-টু-কুক সবজি — সরাসরি আপনার ঘরে।</p>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:24px">
+          <span style="font:800 20px 'Manrope',sans-serif; color:#ffffff">৫,০০০+</span>
+          <span style="font:400 13px 'Hind Siliguri',sans-serif; color:#b89786">পরিবার আমাদের রান্নাঘরে ভরসা রাখে</span>
+        </div>
+        <sc-if value="{{ showSocial }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:10px; margin-top:26px">
+            <a href="#" aria-label="Facebook" style="width:38px; height:38px; border-radius:50%; border:1px solid #ffffff33; display:flex; align-items:center; justify-content:center; color:#ffffff; transition:background .2s, border-color .2s" style-hover="background:#8A1538; border-color:#8A1538"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="facebook" size="{{ 16 }}" hint-size="16px,16px"></x-import></a>
+            <a href="#" aria-label="Instagram" style="width:38px; height:38px; border-radius:50%; border:1px solid #ffffff33; display:flex; align-items:center; justify-content:center; color:#ffffff; transition:background .2s, border-color .2s" style-hover="background:#8A1538; border-color:#8A1538"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="instagram" size="{{ 16 }}" hint-size="16px,16px"></x-import></a>
+            <a href="#" aria-label="YouTube" style="width:38px; height:38px; border-radius:50%; border:1px solid #ffffff33; display:flex; align-items:center; justify-content:center; color:#ffffff; transition:background .2s, border-color .2s" style-hover="background:#8A1538; border-color:#8A1538"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="youtube" size="{{ 16 }}" hint-size="16px,16px"></x-import></a>
+            <a href="#" aria-label="WhatsApp" style="width:38px; height:38px; border-radius:50%; border:1px solid #ffffff33; display:flex; align-items:center; justify-content:center; color:#ffffff; transition:background .2s, border-color .2s" style-hover="background:#8A1538; border-color:#8A1538"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="message-circle" size="{{ 16 }}" hint-size="16px,16px"></x-import></a>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="min-width:0">
+        <div style="font:700 9px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#C79A3C; padding-bottom:16px; border-bottom:1px solid #ffffff1f">CATEGORIES</div>
+        <div style="display:flex; flex-direction:column; gap:13px; margin-top:18px; font:400 14px 'Hind Siliguri',sans-serif; color:#e7d3c4">
+          <a href="#">গুঁড়া মসলা</a>
+          <a href="#">গোটা মসলা</a>
+          <a href="#">রেডি-টু-কুক সবজি</a>
+          <a href="#">অর্গানিক প্যান্ট্রি</a>
+          <a href="#">কম্বো প্যাক</a>
+          <a href="#" style="color:#E8A72B; display:flex; align-items:center; gap:6px">সব পণ্য দেখুন <x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="chevron-right" size="{{ 14 }}" hint-size="14px,14px"></x-import></a>
+        </div>
+      </div>
+
+      <div style="min-width:0">
+        <div style="font:700 9px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#C79A3C; padding-bottom:16px; border-bottom:1px solid #ffffff1f">HELP</div>
+        <div style="display:flex; flex-direction:column; gap:13px; margin-top:18px; font:400 14px 'Hind Siliguri',sans-serif; color:#e7d3c4">
+          <a href="#">অর্ডার ট্র্যাক করুন</a>
+          <a href="#">ডেলিভারি ও পেমেন্ট</a>
+          <a href="#">রিটার্ন ও রিফান্ড</a>
+          <a href="#">প্রশ্নোত্তর</a>
+          <a href="#">আমাদের গল্প</a>
+          <a href="#">পাইকারি অর্ডার</a>
+        </div>
+      </div>
+
+      <div style="min-width:0">
+        <div style="font:700 9px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#C79A3C; padding-bottom:16px; border-bottom:1px solid #ffffff1f">CONTACT</div>
+        <div style="margin-top:18px; display:flex; flex-direction:column; gap:16px">
+          <div>
+            <div style="font:400 11px 'Hind Siliguri',sans-serif; color:#b89786">অর্ডার ও সহায়তা</div>
+            <a href="tel:+8809610000000" style="font:800 20px 'Manrope',sans-serif; color:#ffffff; letter-spacing:.02em; display:inline-block; margin-top:4px">09610 000 000</a>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; font:400 14px/1.7 'Hind Siliguri',sans-serif; color:#e7d3c4">
+            <span style="color:#C79A3C; margin-top:4px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="mail" size="{{ 15 }}" hint-size="15px,15px"></x-import></span>
+            <a href="mailto:hello@rayyan.com.bd" style="font-family:'Manrope',sans-serif; font-size:13px">hello@rayyan.com.bd</a>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; font:400 14px/1.7 'Hind Siliguri',sans-serif; color:#e7d3c4">
+            <span style="color:#C79A3C; margin-top:4px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="map-pin" size="{{ 15 }}" hint-size="15px,15px"></x-import></span>
+            <span>হাউস ১২, রোড ৫, ধানমন্ডি,<br>ঢাকা ১২০৫, বাংলাদেশ</span>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; font:400 14px/1.7 'Hind Siliguri',sans-serif; color:#e7d3c4">
+            <span style="color:#C79A3C; margin-top:4px"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="clock" size="{{ 15 }}" hint-size="15px,15px"></x-import></span>
+            <span>শনি–বৃহস্পতি, সকাল ১০টা – রাত ৮টা</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #ffffff1f">
+      <div style="width:min(1180px,calc(100% - 40px)); margin-inline:auto; padding:22px 0; display:flex; flex-wrap:wrap; align-items:center; gap:14px 26px">
+        <span style="font:700 9px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#b89786">PAYMENT</span>
+        <div style="display:flex; flex-wrap:wrap; gap:8px">
+          <span style="padding:7px 13px; border:1px solid #C79A3C; color:#E8A72B; font:600 12px 'Hind Siliguri',sans-serif">ক্যাশ অন ডেলিভারি</span>
+          <span style="padding:7px 13px; border:1px solid #ffffff29; color:#e7d3c4; font:600 12px 'Hind Siliguri',sans-serif">বিকাশ</span>
+          <span style="padding:7px 13px; border:1px solid #ffffff29; color:#e7d3c4; font:600 12px 'Hind Siliguri',sans-serif">নগদ</span>
+          <span style="padding:7px 13px; border:1px solid #ffffff29; color:#e7d3c4; font:600 12px 'Hind Siliguri',sans-serif">রকেট</span>
+          <span style="padding:7px 13px; border:1px solid #ffffff29; color:#e7d3c4; font:600 12px 'Manrope',sans-serif; letter-spacing:.08em">VISA · MASTERCARD</span>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:8px; font:400 13px 'Hind Siliguri',sans-serif; color:#d8bfaa">
+          <span style="color:#3E6B4F"><x-import component-from-global-scope="RAYYANDesignSystem_7f0581.Icon" name="lock-keyhole" size="{{ 15 }}" hint-size="15px,15px"></x-import></span>
+          নিরাপদ এবং বিশ্বস্ত অর্ডার
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#4A0B1E">
+      <div style="width:min(1180px,calc(100% - 40px)); margin-inline:auto; padding:18px 0; display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px">
+        <span style="font:400 11px 'Manrope',sans-serif; color:#b89786">© ২০২৬ RAYYAN Bangladesh · সর্বস্বত্ব সংরক্ষিত</span>
+        <div style="display:flex; flex-wrap:wrap; gap:20px; margin-left:auto; font:400 12px 'Hind Siliguri',sans-serif; color:#d8bfaa">
+          <a href="#">শর্তাবলি</a>
+          <a href="#">প্রাইভেসি নীতি</a>
+          <a href="#">রিফান্ড নীতি</a>
+        </div>
+        <span style="font:400 12px 'Hind Siliguri',sans-serif; color:#8f6f60">✦ ঢাকায় প্যাক করা</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showTrustStrip&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ফুটার সেকশন&quot;},&quot;showNewsletter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ফুটার সেকশন&quot;},&quot;showSocial&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ফুটার সেকশন&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showTrustStrip: this.props.showTrustStrip ?? true,
+      showNewsletter: this.props.showNewsletter ?? true,
+      showSocial: this.props.showSocial ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>
