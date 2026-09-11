@@ -1,24 +1,25 @@
 "use client";
 
 import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { categoryLabel, isCategorySlug } from "@/lib/categories";
 
 export type Language = "bn" | "en";
 
 type Slide = { title: string; subtitle: string; badge: string; button: string; alt: string };
 type TrustItem = { title: string; note: string };
-type CategoryCopy = { label: string; count: string; alt: string };
 type FooterLink = { label: string; href: string };
 
 type Translation = {
   topbar: { delivery: string; nationwide: string; from: string };
-  nav: { menu: string; tagline: string; products: string; categories: string; story: string; search: string; wishlist: string; cart: string; language: string };
+  nav: { menu: string; tagline: string; products: string; categories: string; story: string; search: string; wishlist: string; cart: string; language: string; openCategories: string; closeCategories: string };
   hero: {
     slides: Slide[];
     avatars: string[];
     categories: string; families: string; familiesNote: string; pure: string; fresh: string; previous: string; next: string; select: string; slide: string;
   };
   trust: TrustItem[];
-  categories: { kicker: string; heading: string; viewAll: string; items: CategoryCopy[] };
+  /** Category names, subtitles and banners live in src/lib/categories.ts; this is shelf chrome only. */
+  categories: { kicker: string; heading: string; viewAll: string; countLabel: string; allLabel: string };
   offer: { kicker: string; headingBefore: string; headingHighlight: string; timerLabel: string; timerValue: string; cta: string };
   products: { kicker: string; heading: string; tabs: string[]; emptyTitle: string; emptyBody: string };
   story: { kicker: string; headingTop: string; headingEm: string; body: string; points: string[]; cta: string; badgeNumber: string; badgeText: string; imageAlt: string };
@@ -55,19 +56,20 @@ type Translation = {
   };
   gallery: { package: string; ingredients: string; video: string; media: string; view: string; playVideo: string; pauseVideo: string; unmute: string; mute: string; muted: string; soundOn: string };
   notFound: { title: string; body: string };
+  search: { kicker: string; heading: string; resultLabel: string; emptyTitle: string; emptyBody: string; submit: string; clear: string };
   categoryNames: Record<string, string>;
 };
 
 const translations: Record<Language, Translation> = {
   bn: {
     topbar: { delivery: "ঢাকার ভিতরে ২৪–৪৮ ঘণ্টায় ক্যাশ অন ডেলিভারি", nationwide: "সারা দেশে ডেলিভারি", from: "৳৬০ থেকে" },
-    nav: { menu: "মেনু", tagline: "রসনায় বিশুদ্ধতা", products: "সব পণ্য", categories: "ক্যাটাগরি", story: "আমাদের গল্প", search: "মসলা বা পণ্য খুঁজুন...", wishlist: "উইশলিস্ট", cart: "কার্ট", language: "English" },
+    nav: { menu: "মেনু", tagline: "রসনায় বিশুদ্ধতা", products: "সব পণ্য", categories: "ক্যাটাগরি", story: "আমাদের গল্প", search: "মসলা বা পণ্য খুঁজুন...", wishlist: "উইশলিস্ট", cart: "কার্ট", language: "English", openCategories: "ক্যাটাগরি মেনু খুলুন", closeCategories: "ক্যাটাগরি মেনু বন্ধ করুন" },
     hero: {
       slides: [
         { title: "শতভাগ খাঁটি গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", alt: "খাঁটি গুঁড়া মসলা" },
-        { title: "বাছাইকৃত প্রিমিয়াম গোটা মসলা", subtitle: "আসল এলাচ, দারুচিনি ও লবঙ্গের তীব্র সুবাস", badge: "হাতে বাছাইকৃত", button: "গোটা মসলা দেখুন", alt: "বাছাইকৃত গোটা মসলা" },
+        { title: "বাটা মসলার সহজ বিকল্প", subtitle: "পেঁয়াজ, আদা, রসুন ও কাঁচা মরিচের খাঁটি গুঁড়া — বাটার ঝামেলা ছাড়াই", badge: "সময় সাশ্রয়ী", button: "গুঁড়া মসলা দেখুন", alt: "পেঁয়াজ আদা ও রসুনের গুঁড়া" },
         { title: "ধোয়া ও কাটা রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", alt: "রেডি-টু-কুক তাজা সবজি" },
-        { title: "মাসিক বাজার স্পেশাল কম্বো প্যাক", subtitle: "প্রয়োজনীয় মসলা ও রান্নার প্যাকেজে সর্বোচ্চ ২৫% পর্যন্ত সাশ্রয়", badge: "স্পেশাল অফার", button: "কম্বো প্যাক দেখুন", alt: "প্রিমিয়াম রান্নাঘর কম্বো" },
+        { title: "ভেষজ ও হেলথ ড্রিংকস", subtitle: "মরিঙ্গা ও বিটরুট পাউডারে দিন শুরু হোক সুস্থতায়", badge: "ভেষজ শক্তি", button: "হেলথ ড্রিংকস দেখুন", alt: "ভেষজ ও হেলথ ড্রিংকস পাউডার" },
       ],
       avatars: ["স", "ম", "আ"],
       categories: "ক্যাটাগরি দেখুন", families: "৫,০০০+ পরিবার", familiesNote: "প্রতিদিন RAYYAN বেছে নেয়", pure: "খাঁটি", fresh: "FRESH", previous: "আগের স্লাইড", next: "পরের স্লাইড", select: "হিরো স্লাইড নির্বাচন", slide: "নম্বর স্লাইড",
@@ -80,12 +82,7 @@ const translations: Record<Language, Translation> = {
     ],
     categories: {
       kicker: "আপনার রান্নাঘরের জন্য", heading: "কী খুঁজছেন আজ?", viewAll: "সব দেখুন",
-      items: [
-        { label: "গুঁড়া মসলা", count: "২৪টি পণ্য", alt: "তাজা গুঁড়া মসলা" },
-        { label: "গোটা মসলা", count: "১৮টি পণ্য", alt: "দারুচিনি এলাচ ও গোটা মসলা" },
-        { label: "রেডি-টু-কুক", count: "১২টি পণ্য", alt: "ফ্রেশ কাটা রেডি-টু-কুক সবজি" },
-        { label: "প্রিমিয়াম কম্বো", count: "৮টি পণ্য", alt: "প্রিমিয়াম মসলা কম্বো" },
-      ],
+      countLabel: "{count}টি পণ্য", allLabel: "সব ক্যাটাগরি",
     },
     offer: { kicker: "এই সপ্তাহের রান্নাঘর অফার", headingBefore: "তিনটি কম্বোতে ", headingHighlight: "২০% ছাড়", timerLabel: "অফার শেষ হতে", timerValue: "০২ : ১৪ : ৩৬", cta: "অফার দেখুন" },
     products: { kicker: "RAYYAN-এর পছন্দ", heading: "এই সপ্তাহের সেরা পণ্য", tabs: ["সবগুলো", "মসলা", "রেডি-টু-কুক"], emptyTitle: "কোনো পণ্য পাওয়া যায়নি", emptyBody: "অন্য ক্যাটাগরি বেছে নিন অথবা অন্য শব্দ দিয়ে খুঁজে দেখুন।" },
@@ -105,11 +102,11 @@ const translations: Record<Language, Translation> = {
       newsletterSuccess: "ধন্যবাদ! নতুন অফারের খবর আপনার ইমেইলে যাবে।", newsletterInvalid: "সঠিক ইমেইল ঠিকানা দিন।",
       categoriesTitle: "CATEGORIES",
       categoryLinks: [
-        { label: "গুঁড়া মসলা", href: "/category/powder-spices" },
-        { label: "গোটা মসলা", href: "/category/whole-spices" },
+        { label: "মৌলিক মশলা", href: "/category/basic-spices" },
+        { label: "গুঁড়া মসলা ও বাটা বিকল্প", href: "/category/aromatics-powder" },
         { label: "রেডি-টু-কুক সবজি", href: "/category/ready-to-cook" },
-        { label: "অর্গানিক প্যান্ট্রি", href: "/category/pantry" },
-        { label: "কম্বো প্যাক", href: "/category/combos" },
+        { label: "ভেষজ ও হেলথ ড্রিংকস", href: "/category/wellness-drinks" },
+        { label: "ড্রাই ফুড", href: "/category/dry-food" },
       ],
       viewAll: "সব পণ্য দেখুন",
       helpTitle: "HELP",
@@ -174,17 +171,22 @@ const translations: Record<Language, Translation> = {
     },
     gallery: { package: "প্যাকেজ", ingredients: "উপকরণ", video: "ভিডিও", media: "পণ্যের মিডিয়া", view: "দেখুন", playVideo: "ভিডিও চালান", pauseVideo: "ভিডিও থামান", unmute: "শব্দ চালু করুন", mute: "শব্দ বন্ধ করুন", muted: "মিউটেড", soundOn: "শব্দ চালু" },
     notFound: { title: "পণ্যটি পাওয়া যায়নি", body: "অ্যাডমিন থেকে পণ্যটি মুছে ফেলা হয়েছে অথবা লিংকটি সঠিক নয়।" },
+    search: {
+      kicker: "সার্চ", heading: "খোঁজার ফলাফল", resultLabel: "“{query}” এর জন্য {count}টি পণ্য",
+      emptyTitle: "কোনো পণ্য পাওয়া যায়নি", emptyBody: "অন্য শব্দ দিয়ে খুঁজে দেখুন অথবা ক্যাটাগরি থেকে বেছে নিন।",
+      submit: "পণ্য খুঁজুন", clear: "সার্চ মুছুন",
+    },
     categoryNames: { "গুঁড়া মসলা": "গুঁড়া মসলা", "গোটা মসলা": "গোটা মসলা", "রেডি-টু-কুক": "রেডি-টু-কুক", "প্রিমিয়াম কম্বো": "প্রিমিয়াম কম্বো" },
   },
   en: {
     topbar: { delivery: "Cash on delivery in Dhaka within 24–48 hours", nationwide: "Nationwide delivery", from: "from ৳60" },
-    nav: { menu: "Menu", tagline: "Purity in every taste", products: "All products", categories: "Categories", story: "Our story", search: "Search spices or products...", wishlist: "Wishlist", cart: "Cart", language: "বাংলা" },
+    nav: { menu: "Menu", tagline: "Purity in every taste", products: "All products", categories: "Categories", story: "Our story", search: "Search spices or products...", wishlist: "Wishlist", cart: "Cart", language: "বাংলা", openCategories: "Open the category menu", closeCategories: "Close the category menu" },
     hero: {
       slides: [
         { title: "100% pure powdered spices", subtitle: "Bring complete satisfaction to every meal with unadulterated flavor and aroma", badge: "Farm fresh", button: "Explore spice collection", alt: "Pure powdered spices" },
-        { title: "Handpicked premium whole spices", subtitle: "The bold aroma of real cardamom, cinnamon, and cloves", badge: "Handpicked", button: "Explore whole spices", alt: "Handpicked whole spices" },
+        { title: "The easy alternative to grinding", subtitle: "Pure onion, ginger, garlic and green chili powders — no grinding needed", badge: "Time saving", button: "Explore herb powders", alt: "Onion, ginger and garlic powders" },
         { title: "Washed and cut ready-to-cook vegetables", subtitle: "Vacuum-packed fresh cuts that cut your cooking time in half", badge: "Vacuum sealed", button: "Order vegetables", alt: "Fresh ready-to-cook vegetables" },
-        { title: "Monthly grocery special combo pack", subtitle: "Save up to 25% on essential spices and cooking bundles", badge: "Special offer", button: "Explore combo pack", alt: "Premium kitchen combo" },
+        { title: "Wellness and fruit drinks", subtitle: "Start the day well with moringa and beetroot powders", badge: "Herbal strength", button: "Explore health drinks", alt: "Wellness and fruit drink powders" },
       ],
       avatars: ["S", "M", "A"],
       categories: "Explore categories", families: "5,000+ families", familiesNote: "choose RAYYAN every day", pure: "Pure", fresh: "FRESH", previous: "Previous slide", next: "Next slide", select: "Select hero slide", slide: "slide",
@@ -197,12 +199,7 @@ const translations: Record<Language, Translation> = {
     ],
     categories: {
       kicker: "For your kitchen", heading: "What are you looking for today?", viewAll: "View all",
-      items: [
-        { label: "Powder Spices", count: "24 Products", alt: "Fresh powdered spices" },
-        { label: "Whole Spices", count: "18 Products", alt: "Cinnamon, cardamom and whole spices" },
-        { label: "Ready to Cook", count: "12 Products", alt: "Freshly cut ready-to-cook vegetables" },
-        { label: "Premium Combos", count: "8 Products", alt: "Premium spice combo" },
-      ],
+      countLabel: "{count} Products", allLabel: "All categories",
     },
     offer: { kicker: "This week's kitchen offer", headingBefore: "Save ", headingHighlight: "20% on three combos", timerLabel: "Offer ends in", timerValue: "02 : 14 : 36", cta: "View offer" },
     products: { kicker: "RAYYAN's picks", heading: "This week's best products", tabs: ["All", "Spices", "Ready-to-cook"], emptyTitle: "No products found", emptyBody: "Pick another category, or try a different search term." },
@@ -222,11 +219,11 @@ const translations: Record<Language, Translation> = {
       newsletterSuccess: "Thanks! New offers are on their way to your inbox.", newsletterInvalid: "Enter a valid email address.",
       categoriesTitle: "CATEGORIES",
       categoryLinks: [
-        { label: "Powder Spices", href: "/category/powder-spices" },
-        { label: "Whole Spices", href: "/category/whole-spices" },
-        { label: "Ready-to-Cook Vegetables", href: "/category/ready-to-cook" },
-        { label: "Organic Pantry", href: "/category/pantry" },
-        { label: "Combo Packs", href: "/category/combos" },
+        { label: "Basic Spices", href: "/category/basic-spices" },
+        { label: "Aromatics & Herb Powders", href: "/category/aromatics-powder" },
+        { label: "Ready to Cook", href: "/category/ready-to-cook" },
+        { label: "Wellness & Fruit Drinks", href: "/category/wellness-drinks" },
+        { label: "Dry Food & Nuts", href: "/category/dry-food" },
       ],
       viewAll: "View all products",
       helpTitle: "HELP",
@@ -291,6 +288,11 @@ const translations: Record<Language, Translation> = {
     },
     gallery: { package: "Package", ingredients: "Ingredients", video: "Video", media: "Product media", view: "view", playVideo: "Play video", pauseVideo: "Pause video", unmute: "Turn sound on", mute: "Turn sound off", muted: "Muted", soundOn: "Sound on" },
     notFound: { title: "Product not found", body: "The product was removed from the admin panel, or the link is not correct." },
+    search: {
+      kicker: "Search", heading: "Search results", resultLabel: "{count} products for “{query}”",
+      emptyTitle: "No products found", emptyBody: "Try a different word, or pick a category instead.",
+      submit: "Search products", clear: "Clear search",
+    },
     categoryNames: { "গুঁড়া মসলা": "Powder Spices", "গোটা মসলা": "Whole Spices", "রেডি-টু-কুক": "Ready to Cook", "প্রিমিয়াম কম্বো": "Premium Combos" },
   },
 };
@@ -309,7 +311,9 @@ export function productTitle(product: { name: string; bn: string }, language: La
   return language === "en" ? product.name : product.bn;
 }
 
+/** Display name for a stored category value: the five slugs first, then legacy names. */
 export function localizeCategory(category: string, language: Language) {
+  if (isCategorySlug(category)) return categoryLabel(category, language);
   return translations[language].categoryNames[category] || category;
 }
 

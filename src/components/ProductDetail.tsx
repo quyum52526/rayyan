@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
+import { categoryHref, resolveCategorySlug } from "@/lib/categories";
 import type { Product } from "@/lib/products";
 import { useStore } from "@/lib/store";
 
@@ -35,7 +36,7 @@ export default function ProductDetail({ product }: { product: Product }) {
   return (
     <main className="pdp-page">
       <header className="pdp-header"><div className="container pdp-header-inner"><Link className="pdp-back" href="/"><ArrowLeft size={17} /> {t.pdp.back}</Link><Link className="logo" href="/">RAYYAN<span>{t.nav.tagline}</span></Link><button className="pdp-cart-trigger" onClick={() => setCartOpen(true)}><ShoppingBag size={18} /> {t.pdp.cart} <b>{formatNumber(quantity, language)}</b></button></div></header>
-      <div className="container pdp-breadcrumb"><Link href="/">{t.pdp.home}</Link><ChevronRight size={14} /><Link href="#products">{localizeCategory(product.category, language)}</Link><ChevronRight size={14} /><span>{title}</span></div>
+      <div className="container pdp-breadcrumb"><Link href="/">{t.pdp.home}</Link><ChevronRight size={14} /><Link href={categoryHref(resolveCategorySlug(product.category))}>{localizeCategory(product.category, language)}</Link><ChevronRight size={14} /><span>{title}</span></div>
       <section className="container pdp-layout">
         <ProductGallery productName={title} frontImage={product.image} detailImage={product.image2 || product.image} videoSrc={product.video} />
         <div className="pdp-details">

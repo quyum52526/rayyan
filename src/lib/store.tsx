@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { PaymentMethod } from "@/lib/payment";
-import type { Product } from "@/lib/products";
+import { normalizeProducts, type Product } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
@@ -57,7 +57,7 @@ async function fetchCatalog() {
   const response = await fetch("/api/products", { cache: "no-store" });
   if (!response.ok) throw new Error(`Product request failed with ${response.status}.`);
   const payload = await response.json() as Product[] | { products: Product[] };
-  return Array.isArray(payload) ? payload : payload.products;
+  return normalizeProducts(Array.isArray(payload) ? payload : payload.products);
 }
 
 async function cacheCatalog(products: Product[]) {
@@ -118,13 +118,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       let localProducts: Product[] | null = null;
       let deletedIds = new Set<number>();
       try { deletedIds = new Set(await getDeletedProductIds()); } catch (error) { console.warn("Unable to read deleted product ids.", error); }
-      try { localProducts = await getStoredProducts(); } catch (error) { console.warn("Unable to read the local product catalog.", error); }
+      try { const cached = await getStoredProducts(); localProducts = cached ? normalizeProducts(cached) : null; } catch (error) { console.warn("Unable to read the local product catalog.", error); }
       try {
         activeProducts = await fetchCatalog();
         // Only products the admin explicitly queued while offline are re-added. The cached
         // catalog is never merged back in: it can still hold products deleted since it was
         // written, and merging it would resurrect them.
-        const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
+        const pending = normalizeProducts(await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
         await setPendingProducts(pending);
         await cacheCatalog(activeProducts);
         if (pending.length > 0) {
@@ -139,7 +139,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       if (active) {
         try {
-          const pending = (await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
+          const pending = normalizeProducts(await getPendingProducts()).filter((product) => !deletedIds.has(product.id));
           setPendingProductsState(pending);
           const cloudIds = new Set(activeProducts.map((product) => product.id));
           activeProducts = [...activeProducts, ...pending.filter((product) => !cloudIds.has(product.id))];

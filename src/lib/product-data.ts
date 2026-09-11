@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { Product } from "@/lib/products";
+import { normalizeProducts, type Product } from "@/lib/products";
 
 const localCatalogPath = path.join(process.cwd(), "src/data/products.json");
 const catalogBlobPath = "catalog/products.json";
@@ -34,11 +34,15 @@ export class CatalogWriteRefusedError extends Error {
   }
 }
 
+/**
+ * Every catalog read funnels through here, so this is where legacy category values are
+ * folded onto the five category slugs and the hot-deals flag is recovered.
+ */
 function assertProductArray(value: unknown, origin: string): Product[] {
   if (!Array.isArray(value)) {
     throw new CatalogReadError(`Catalog at ${origin} is not an array (got ${typeof value}).`);
   }
-  return value as Product[];
+  return normalizeProducts(value as Product[]);
 }
 
 async function readLocalCatalog(): Promise<CatalogRead> {
