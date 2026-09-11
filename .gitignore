@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Design exports. Self-extracting .dc.html bundles inline every image and font as
+# base64, so they run to tens of MB; the "Save page as" _files/ folders are the same again.
+# The implemented output is what belongs in the repo, not the bundle it was unpacked from.
+Rayyan/*.html
+Rayyan/*_files/

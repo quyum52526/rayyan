@@ -5,7 +5,8 @@ import { categoryLabel, isCategorySlug } from "@/lib/categories";
 
 export type Language = "bn" | "en";
 
-type Slide = { title: string; subtitle: string; badge: string; button: string; alt: string };
+/** `titleEm` is the emphasised tail of the headline; `imageAlts` matches the three packs in the slide art. */
+type Slide = { title: string; titleEm: string; subtitle: string; badge: string; button: string; stock: string; imageAlts: [string, string, string] };
 type TrustItem = { title: string; note: string };
 type FooterLink = { label: string; href: string };
 
@@ -14,8 +15,8 @@ type Translation = {
   nav: { menu: string; tagline: string; products: string; categories: string; story: string; search: string; wishlist: string; cart: string; language: string; openCategories: string; closeCategories: string };
   hero: {
     slides: Slide[];
-    avatars: string[];
-    categories: string; families: string; familiesNote: string; pure: string; fresh: string; previous: string; next: string; select: string; slide: string;
+    priceFrom: string; reviewsLabel: string; delivery: string;
+    categories: string; pure: string; fresh: string; previous: string; next: string; select: string; slide: string;
   };
   trust: TrustItem[];
   /** Category names, subtitles and banners live in src/lib/categories.ts; this is shelf chrome only. */
@@ -66,13 +67,14 @@ const translations: Record<Language, Translation> = {
     nav: { menu: "মেনু", tagline: "রসনায় বিশুদ্ধতা", products: "সব পণ্য", categories: "ক্যাটাগরি", story: "আমাদের গল্প", search: "মসলা বা পণ্য খুঁজুন...", wishlist: "উইশলিস্ট", cart: "কার্ট", language: "English", openCategories: "ক্যাটাগরি মেনু খুলুন", closeCategories: "ক্যাটাগরি মেনু বন্ধ করুন" },
     hero: {
       slides: [
-        { title: "শতভাগ খাঁটি গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", alt: "খাঁটি গুঁড়া মসলা" },
-        { title: "বাটা মসলার সহজ বিকল্প", subtitle: "পেঁয়াজ, আদা, রসুন ও কাঁচা মরিচের খাঁটি গুঁড়া — বাটার ঝামেলা ছাড়াই", badge: "সময় সাশ্রয়ী", button: "গুঁড়া মসলা দেখুন", alt: "পেঁয়াজ আদা ও রসুনের গুঁড়া" },
-        { title: "ধোয়া ও কাটা রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", alt: "রেডি-টু-কুক তাজা সবজি" },
-        { title: "ভেষজ ও হেলথ ড্রিংকস", subtitle: "মরিঙ্গা ও বিটরুট পাউডারে দিন শুরু হোক সুস্থতায়", badge: "ভেষজ শক্তি", button: "হেলথ ড্রিংকস দেখুন", alt: "ভেষজ ও হেলথ ড্রিংকস পাউডার" },
+        { title: "শতভাগ খাঁটি ", titleEm: "গুঁড়া মসলা", subtitle: "ভেজালমুক্ত স্বাদ ও ঘ্রাণে রান্নায় আনুন পরিপূর্ণ তৃপ্তি", badge: "ফার্ম ফ্রেশ", button: "মসলা কালেকশন দেখুন", stock: "স্টকে আছে", imageAlts: ["হলুদ গুঁড়া", "মরিচ গুঁড়া", "ধনিয়া গুঁড়া"] },
+        { title: "বাটা মসলার ", titleEm: "সহজ বিকল্প", subtitle: "পেঁয়াজ, আদা, রসুন ও কাঁচা মরিচের খাঁটি গুঁড়া — বাটার ঝামেলা ছাড়াই", badge: "সময় সাশ্রয়ী", button: "গুঁড়া মসলা দেখুন", stock: "স্টকে আছে", imageAlts: ["রসুন গুঁড়া", "পেঁয়াজ গুঁড়া", "আদার গুঁড়া"] },
+        { title: "ধোয়া ও কাটা ", titleEm: "রেডি-টু-কুক সবজি", subtitle: "ভ্যাকুয়াম প্যাকড ফ্রেশ কাটিং, রান্নার সময় বাঁচান অর্ধেক", badge: "ভ্যাকুয়াম সিল্ড", button: "সবজি অর্ডার করুন", stock: "আজ কাটা, আজ প্যাক", imageAlts: ["দেশি কারি মিক্স", "কিউব গাজর", "কাটা ব্রকলি"] },
+        { title: "ভেষজ ও ", titleEm: "হেলথ ড্রিংকস", subtitle: "মরিঙ্গা ও বিটরুট পাউডারে দিন শুরু হোক সুস্থতায়", badge: "ভেষজ শক্তি", button: "হেলথ ড্রিংকস দেখুন", stock: "স্টকে আছে", imageAlts: ["মরিঙ্গা পাউডার", "বিটরুট পাউডার", "ভেষজ মিক্স"] },
+        { title: "শুকনো খাবার ও ", titleEm: "বাদামের প্যাক", subtitle: "কাঠবাদাম, কাজু ও খেজুর — এয়ারটাইট প্যাকে সংরক্ষিত", badge: "বাছাইকৃত", button: "ড্রাই ফুড দেখুন", stock: "স্টকে আছে", imageAlts: ["বাদামের প্যাক", "কাজু বাদাম", "খেজুর"] },
       ],
-      avatars: ["স", "ম", "আ"],
-      categories: "ক্যাটাগরি দেখুন", families: "৫,০০০+ পরিবার", familiesNote: "প্রতিদিন RAYYAN বেছে নেয়", pure: "খাঁটি", fresh: "FRESH", previous: "আগের স্লাইড", next: "পরের স্লাইড", select: "হিরো স্লাইড নির্বাচন", slide: "নম্বর স্লাইড",
+      priceFrom: "শুরু মাত্র", reviewsLabel: "{count} রিভিউ", delivery: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি · ৳১০০০+ অর্ডারে ফ্রি",
+      categories: "ক্যাটাগরি দেখুন", pure: "খাঁটি", fresh: "FRESH", previous: "আগের স্লাইড", next: "পরের স্লাইড", select: "হিরো স্লাইড নির্বাচন", slide: "নম্বর স্লাইড",
     },
     trust: [
       { title: "১০০% খাঁটি", note: "বিশুদ্ধতার নিশ্চয়তা" },
@@ -183,13 +185,14 @@ const translations: Record<Language, Translation> = {
     nav: { menu: "Menu", tagline: "Purity in every taste", products: "All products", categories: "Categories", story: "Our story", search: "Search spices or products...", wishlist: "Wishlist", cart: "Cart", language: "বাংলা", openCategories: "Open the category menu", closeCategories: "Close the category menu" },
     hero: {
       slides: [
-        { title: "100% pure powdered spices", subtitle: "Bring complete satisfaction to every meal with unadulterated flavor and aroma", badge: "Farm fresh", button: "Explore spice collection", alt: "Pure powdered spices" },
-        { title: "The easy alternative to grinding", subtitle: "Pure onion, ginger, garlic and green chili powders — no grinding needed", badge: "Time saving", button: "Explore herb powders", alt: "Onion, ginger and garlic powders" },
-        { title: "Washed and cut ready-to-cook vegetables", subtitle: "Vacuum-packed fresh cuts that cut your cooking time in half", badge: "Vacuum sealed", button: "Order vegetables", alt: "Fresh ready-to-cook vegetables" },
-        { title: "Wellness and fruit drinks", subtitle: "Start the day well with moringa and beetroot powders", badge: "Herbal strength", button: "Explore health drinks", alt: "Wellness and fruit drink powders" },
+        { title: "100% pure ", titleEm: "powdered spices", subtitle: "Bring complete satisfaction to every meal with unadulterated flavor and aroma", badge: "Farm fresh", button: "Explore spice collection", stock: "In stock", imageAlts: ["Turmeric powder", "Chili powder", "Coriander powder"] },
+        { title: "The easy alternative ", titleEm: "to grinding", subtitle: "Pure onion, ginger, garlic and green chili powders — no grinding needed", badge: "Time saving", button: "Explore herb powders", stock: "In stock", imageAlts: ["Garlic powder", "Onion powder", "Ginger powder"] },
+        { title: "Washed and cut ", titleEm: "ready-to-cook vegetables", subtitle: "Vacuum-packed fresh cuts that cut your cooking time in half", badge: "Vacuum sealed", button: "Order vegetables", stock: "Cut today, packed today", imageAlts: ["Country curry mix", "Diced carrots", "Cut broccoli"] },
+        { title: "Wellness and ", titleEm: "health drinks", subtitle: "Start the day well with moringa and beetroot powders", badge: "Herbal strength", button: "Explore health drinks", stock: "In stock", imageAlts: ["Moringa powder", "Beetroot powder", "Herbal mix"] },
+        { title: "Dry foods and ", titleEm: "nut packs", subtitle: "Almonds, cashews and dates — sealed in airtight packs", badge: "Hand picked", button: "Explore dry food", stock: "In stock", imageAlts: ["Nut pack", "Cashew nuts", "Dates"] },
       ],
-      avatars: ["S", "M", "A"],
-      categories: "Explore categories", families: "5,000+ families", familiesNote: "choose RAYYAN every day", pure: "Pure", fresh: "FRESH", previous: "Previous slide", next: "Next slide", select: "Select hero slide", slide: "slide",
+      priceFrom: "Starting at", reviewsLabel: "{count} reviews", delivery: "Delivered in Dhaka within 24–48 hours · free over ৳1000",
+      categories: "Explore categories", pure: "Pure", fresh: "FRESH", previous: "Previous slide", next: "Next slide", select: "Select hero slide", slide: "slide",
     },
     trust: [
       { title: "100% pure", note: "Guaranteed purity" },

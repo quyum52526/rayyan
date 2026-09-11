@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronRight, Minus, Plus, Search, ShoppingBag, Sparkles, Star, Truck, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, Check, Minus, Plus, Search, ShoppingBag, Star, Truck, X } from "lucide-react";
+import CategoryDeckCarousel from "@/components/CategoryDeckCarousel";
 import CategoryShelf from "@/components/CategoryShelf";
+import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import ProductGallery from "@/components/ProductGallery";
 import ProductGrid from "@/components/ProductGrid";
 import PaymentMethodFields from "@/components/PaymentMethodFields";
 import SiteFooter from "@/components/SiteFooter";
-import Link from "next/link";
 import { requiresTransactionId, type PaymentMethod } from "@/lib/payment";
 import { useStore } from "@/lib/store";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
-import { CATEGORIES, categoryAlt, categoryHref, categoryLabel, type CategorySlug } from "@/lib/categories";
+import { CATEGORIES, type CategorySlug } from "@/lib/categories";
 import { isHotDeal, matchesQuery, type Product } from "@/lib/products";
 
 // Positional match to t.products.tabs. null means "no category filter".
@@ -20,14 +21,6 @@ const productTabCategories: (CategorySlug[] | null)[] = [
   null,
   ["basic-spices", "aromatics-powder"],
   ["ready-to-cook"],
-];
-
-// Positional match to t.hero.slides. `theme` picks the hero-<theme> palette in globals.css.
-const heroSlideMeta: { slug: CategorySlug; theme: string; image: string }[] = [
-  { slug: "basic-spices", theme: "powder", image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=1100&q=85" },
-  { slug: "aromatics-powder", theme: "whole", image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1100&q=85" },
-  { slug: "ready-to-cook", theme: "fresh", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1100&q=85" },
-  { slug: "wellness-drinks", theme: "combo", image: "https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=1100&q=85" },
 ];
 
 export default function Home() {
@@ -39,9 +32,7 @@ export default function Home() {
   const [liked, setLiked] = useState<number[]>([]);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [activeSlide, setActiveSlide] = useState(0);
   const [activeProductTab, setActiveProductTab] = useState(0);
-  const [isHeroHovered, setIsHeroHovered] = useState(false);
   const [checkoutName, setCheckoutName] = useState("");
   const [checkoutPhone, setCheckoutPhone] = useState("");
   const [checkoutAddress, setCheckoutAddress] = useState("");
@@ -49,8 +40,6 @@ export default function Home() {
   const [checkoutPayment, setCheckoutPayment] = useState<PaymentMethod>("cod");
   const [checkoutTransactionId, setCheckoutTransactionId] = useState("");
   const [checkoutError, setCheckoutError] = useState("");
-  const touchStartX = useRef<number | null>(null);
-  const slide = { ...t.hero.slides[activeSlide], ...heroSlideMeta[activeSlide] };
   // Weekly hot deals drive the top shelf. Until products carry the flag the shelf keeps
   // showing the whole catalog rather than going blank.
   const hotDealProducts = useMemo(() => {
@@ -78,7 +67,6 @@ export default function Home() {
     onAddToCart: addProductToCart,
     onQuickView: (product: Product) => { setActiveProduct(product); setQuantity(1); },
   };
-  const moveSlide = (direction: 1 | -1) => setActiveSlide((current) => (current + direction + heroSlideMeta.length) % heroSlideMeta.length);
   const activeDiscount = activeProduct ? Math.round((1 - activeProduct.price / activeProduct.oldPrice) * 100) : 0;
   const checkoutDeliveryFee = checkoutZone === "inside" ? 60 : 120;
   const checkoutGrandTotal = total + checkoutDeliveryFee;
@@ -127,30 +115,17 @@ ${t.payment.summaryLabel}: ${t.payment.methods[checkoutPayment]}
 ${paymentSummary}`);
   };
 
-  useEffect(() => {
-    if (isHeroHovered) return;
-    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % heroSlideMeta.length), 5000);
-    return () => window.clearInterval(timer);
-  }, [isHeroHovered]);
-
   return (
     <main>
       <Navbar searchValue={search} onSearchChange={setSearch} wishlistCount={liked.length} cartCount={cart.length} onCartOpen={() => setCartOpen(true)} />
 
-      <section className={`hero hero-carousel hero-${slide.theme}`} id="top" onMouseEnter={() => setIsHeroHovered(true)} onMouseLeave={() => setIsHeroHovered(false)} onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX; }} onTouchEnd={(event) => { if (touchStartX.current === null) return; const distance = event.changedTouches[0].clientX - touchStartX.current; if (Math.abs(distance) > 45) moveSlide(distance < 0 ? 1 : -1); touchStartX.current = null; }}>
-        <div className="container carousel-inner"><div className="hero-copy carousel-copy"><div className="eyebrow"><Sparkles size={14} /> {slide.badge}</div><h1>{slide.title}</h1><p>{slide.subtitle}</p><div className="hero-actions"><Link className="primary-button" href={categoryHref(slide.slug)}>{slide.button} <ArrowRight size={17} /></Link><a className="text-link" href="#categories">{t.hero.categories} <ChevronRight size={16} /></a></div><div className="hero-proof"><div className="avatar-stack">{t.hero.avatars.map((initial) => <span key={initial}>{initial}</span>)}<span>+</span></div><div><strong>{t.hero.families}</strong><small>{t.hero.familiesNote}</small></div></div></div><div className="hero-art"><div className="hero-art-label"><span>RAYYAN</span><b>{formatNumber(activeSlide + 1, language).padStart(2, language === "bn" ? "০" : "0")}</b></div><div className="hero-dish"><img key={slide.image} src={slide.image} alt={slide.alt} /></div><div className="hero-stamp"><span>PURE</span><strong>{activeSlide === 2 ? t.hero.fresh : t.hero.pure}</strong><span>EST. 2024</span></div><div className="hero-leaf leaf-one">✦</div><div className="hero-leaf leaf-two">✽</div></div></div>
-        <button className="carousel-arrow carousel-prev" onClick={() => moveSlide(-1)} aria-label={t.hero.previous}><ChevronRight size={22} /></button><button className="carousel-arrow carousel-next" onClick={() => moveSlide(1)} aria-label={t.hero.next}><ChevronRight size={22} /></button>
-        <div className="carousel-controls" role="tablist" aria-label={t.hero.select}>{t.hero.slides.map((item, index) => <button className={`carousel-dot ${index === activeSlide ? "active" : ""}`} key={item.title} onClick={() => setActiveSlide(index)} role="tab" aria-selected={index === activeSlide} aria-label={`${formatNumber(index + 1, language)} ${t.hero.slide}`}><span /></button>)}</div>
-      </section>
+      <Hero products={products} />
 
       <section className="trust-strip"><div className="container trust-grid">{t.trust.map((item, index) => <div key={item.title}><span className="trust-icon">{["✦", "♧", "❋", "৳"][index]}</span><span><b>{item.title}</b><small>{item.note}</small></span></div>)}</div></section>
 
       <section className="section container" id="categories">
         <div className="section-heading"><div><p className="kicker">{t.categories.kicker}</p><h2>{t.categories.heading}</h2></div><a className="view-all" href="#hot-deals">{t.categories.viewAll} <ArrowRight size={15} /></a></div>
-        <div className="category-grid">{CATEGORIES.map((category) => {
-          const count = products.filter((product) => product.category === category.slug).length;
-          return <Link className="category-card group" href={categoryHref(category.slug)} key={category.slug}><img src={category.banner} alt={categoryAlt(category.slug, language)} /><span className="category-overlay" /><div className="category-content"><h3>{categoryLabel(category.slug, language)}</h3><p>{t.categories.countLabel.replace("{count}", formatNumber(count, language))}</p></div><span className="category-arrow"><ArrowRight size={18} /></span></Link>;
-        })}</div>
+        <CategoryDeckCarousel products={products} />
       </section>
 
       <section className="offer-banner"><div className="container offer-inner"><div className="offer-spark">✹</div><div><p>{t.offer.kicker}</p><h2>{t.offer.headingBefore}<strong>{t.offer.headingHighlight}</strong></h2></div><div className="offer-timer"><span>{t.offer.timerLabel}</span><b>{t.offer.timerValue}</b></div><a className="dark-button" href="#hot-deals">{t.offer.cta} <ArrowRight size={16} /></a></div></section>
