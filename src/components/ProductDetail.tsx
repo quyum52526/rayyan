@@ -6,8 +6,8 @@ import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
 import { categoryHref, resolveCategorySlug } from "@/lib/categories";
-import type { Product } from "@/lib/products";
-import { useStore } from "@/lib/store";
+import { defaultVariant, productVariants, type Product } from "@/lib/products";
+import { cartAddition, useStore } from "@/lib/store";
 
 export default function ProductDetail({ product }: { product: Product }) {
   const { addToCart } = useStore();
@@ -15,9 +15,11 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "nutrition" | "storage">("description");
   const [cartOpen, setCartOpen] = useState(false);
-  const [variantIndex, setVariantIndex] = useState(1);
-  const discount = Math.round((1 - product.price / product.oldPrice) * 100);
-  const total = product.price * quantity;
+  const variants = productVariants(product);
+  const [selectedVariant, setSelectedVariant] = useState(() => defaultVariant(product));
+  const discount = selectedVariant.originalPrice > selectedVariant.price ? Math.round((1 - selectedVariant.price / selectedVariant.originalPrice) * 100) : 0;
+  const total = selectedVariant.price * quantity;
+  const originalTotal = selectedVariant.originalPrice * quantity;
   const title = productTitle(product, language);
   const secondaryTitle = language === "en" ? product.bn : product.name;
 
@@ -43,17 +45,17 @@ export default function ProductDetail({ product }: { product: Product }) {
           <span className="pdp-kicker">{t.card.kicker} · {localizeCategory(product.category, language)}</span>
           <h1>{title}</h1><p className="pdp-english">{secondaryTitle}</p>
           <div className="pdp-rating"><span><Star size={15} fill="currentColor" /> <Star size={15} fill="currentColor" /> <Star size={15} fill="currentColor" /> <Star size={15} fill="currentColor" /> <Star size={15} fill="currentColor" /></span><b>{formatNumber(product.rating, language)}</b><em>({formatNumber(product.reviews, language)} {t.pdp.reviews})</em><strong><i /> {t.pdp.inStock}</strong></div>
-          <div className="pdp-price"><strong>{formatPrice(product.price, language)}</strong><del>{formatPrice(product.oldPrice, language)}</del><span>-{formatNumber(discount, language)}% {t.pdp.off}</span></div>
+          <div className="pdp-price"><strong>{formatPrice(total, language)}</strong>{originalTotal > total && <del>{formatPrice(originalTotal, language)}</del>}{discount > 0 && <span>-{formatNumber(discount, language)}% {t.pdp.off}</span>}</div>
           <div className="pdp-divider" />
-          <div className="variant-section"><div className="variant-heading"><b>{t.pdp.weightHeading}</b><span>SKU: RY-{product.id}01</span></div><div className="pdp-variants">{t.pdp.variants.map((variant, index) => <button className={variantIndex === index ? "selected" : ""} onClick={() => setVariantIndex(index)} key={variant}>{variant}</button>)}</div></div>
-          <div className="pdp-buy-row"><div className="pdp-quantity"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button><b>{formatNumber(quantity, language)}</b><button onClick={() => setQuantity(quantity + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button></div><button className="pdp-add-button" onClick={() => { for (let index = 0; index < quantity; index += 1) addToCart(product); setCartOpen(true); }}><ShoppingBag size={18} /> {t.pdp.addToCart}</button></div>
+          <div className="variant-section"><div className="variant-heading"><b>{t.pdp.weightHeading}</b><span>SKU: RY-{product.id}01</span></div><div className="pdp-variants">{variants.map((variant) => <button type="button" className={variant.size === selectedVariant.size ? "selected" : ""} aria-pressed={variant.size === selectedVariant.size} onClick={() => setSelectedVariant(variant)} key={variant.size || "base"}>{variant.size || t.cart.defaultWeight}</button>)}</div></div>
+          <div className="pdp-buy-row"><div className="pdp-quantity"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button><b>{formatNumber(quantity, language)}</b><button onClick={() => setQuantity(quantity + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button></div><button className="pdp-add-button" onClick={() => { addToCart(cartAddition(product, selectedVariant, quantity)); setCartOpen(true); }}><ShoppingBag size={18} /> {t.pdp.addToCart}</button></div>
           <Link className="pdp-buy-now" href="/checkout">{t.pdp.buyNow} <ArrowRight size={18} /></Link>
           <div className="pdp-delivery"><Truck size={18} /><span><b>{t.pdp.deliveryTitle}</b><small>{t.pdp.deliveryNote}</small></span></div>
           <div className="pdp-trust-row">{t.pdp.trustRow.map((item) => <span key={item}><Check size={14} /> {item}</span>)}</div>
           <div className="pdp-info-tabs"><div className="pdp-tab-list" role="tablist">{tabs.map((tab) => <button className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} role="tab" aria-selected={activeTab === tab.id} key={tab.id}>{tab.label}</button>)}</div><div className="pdp-tab-panel" role="tabpanel"><p>{detail[activeTab] || t.pdp.tabEmpty}</p></div></div>
         </div>
       </section>
-      {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">{t.cart.kicker}</p><h2>{t.cart.title} <span>({formatNumber(quantity, language)})</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label={t.cart.close}><X size={20} /></button></div><div className="drawer-items"><div className="drawer-item"><img src={product.image} alt={title} /><div><h3>{title}</h3><p>{t.pdp.variants[variantIndex]} × {formatNumber(quantity, language)}</p><strong>{formatPrice(total, language)}</strong></div></div></div><div className="drawer-footer"><div><span>{t.cart.subtotal}</span><strong>{formatPrice(total, language)}</strong></div><p>{t.cart.deliveryNote}</p><Link className="primary-button checkout-button" href="/checkout">{t.cart.checkout} <ArrowRight size={17} /></Link></div></aside></div>}
+      {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">{t.cart.kicker}</p><h2>{t.cart.title} <span>({formatNumber(quantity, language)})</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label={t.cart.close}><X size={20} /></button></div><div className="drawer-items"><div className="drawer-item"><img src={product.image} alt={title} /><div><h3>{title}</h3><p>{selectedVariant.size || t.cart.defaultWeight} × {formatNumber(quantity, language)}</p><strong>{formatPrice(total, language)}</strong></div></div></div><div className="drawer-footer"><div><span>{t.cart.subtotal}</span><strong>{formatPrice(total, language)}</strong></div><p>{t.cart.deliveryNote}</p><Link className="primary-button checkout-button" href="/checkout">{t.cart.checkout} <ArrowRight size={17} /></Link></div></aside></div>}
     </main>
   );
 }

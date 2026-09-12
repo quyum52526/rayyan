@@ -11,7 +11,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/context/LanguageContext";
 import { CATEGORIES, categoryHref, categoryLabel, type CategorySlug } from "@/lib/categories";
 import { matchesQuery, type Product } from "@/lib/products";
-import { useStore } from "@/lib/store";
+import { cartAddition, useStore } from "@/lib/store";
 
 /** Category landing page: the banner, every product in the category, and sibling links. */
 export default function CategoryRoute({ slug }: { slug: CategorySlug }) {
@@ -26,14 +26,15 @@ export default function CategoryRoute({ slug }: { slug: CategorySlug }) {
     [products, slug, search]
   );
 
-  const addProductToCart = (product: Product) => addToCart(product);
+  const addProductToCart = (product: Product) => addToCart(cartAddition(product));
   // The quick-view modal lives on the homepage, so here the card opens the product page.
   const openProduct = (product: Product) => router.push(`/products/${product.slug}`);
 
   return (
     <>
       <Navbar searchValue={search} onSearchChange={setSearch} wishlistCount={liked.length} cartCount={cart.length} />
-      <main className="container category-page">
+      <main className="category-page">
+        <div className="container">
         <CategoryBanner slug={slug} count={categoryProducts.length} showViewAll={false} />
         {categoryProducts.length > 0
           ? <ProductGrid
@@ -56,6 +57,7 @@ export default function CategoryRoute({ slug }: { slug: CategorySlug }) {
             ))}
           </div>
         </nav>
+        </div>
       </main>
       <SiteFooter />
     </>

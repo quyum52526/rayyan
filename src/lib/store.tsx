@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { PaymentMethod } from "@/lib/payment";
-import { normalizeProducts, type Product } from "@/lib/products";
+import { defaultVariant, findVariant, normalizeProducts, type Product, type ProductVariant } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
@@ -16,12 +16,23 @@ export type CustomerOrder = {
   paymentMethod: PaymentMethod;
   transactionId?: string;
   status: OrderStatus;
-  items: Product[];
+  /** Orders placed before pack sizes existed have no `variant`. */
+  items: (Product & { variant?: string })[];
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
   createdAt: string;
 };
+
+/** One unit in the cart: the product priced as the pack size the shopper picked. */
+export type CartItem = Product & { variant: string };
+
+/** One pack size of one product, in some quantity — what every "add to cart" hands the store. */
+export type CartAddition = { productId: number; variant: string; unitPrice: number; quantity: number; totalPrice: number };
+
+export function cartAddition(product: Product, variant: ProductVariant = defaultVariant(product), quantity = 1): CartAddition {
+  return { productId: product.id, variant: variant.size, unitPrice: variant.price, quantity, totalPrice: variant.price * quantity };
+}
 
 type StoredCartItem = {
   productId: string;
@@ -35,14 +46,14 @@ type StoreContextValue = {
   catalogReady: boolean;
   catalogSource: "cloud" | "local";
   pendingProducts: Product[];
-  cart: Product[];
+  cart: CartItem[];
   orders: CustomerOrder[];
   addProduct: (product: Product) => Promise<"server" | "local">;
   updateProduct: (product: Product) => Promise<"server" | "local">;
   deleteProduct: (id: number) => Promise<"server" | "local">;
   syncLocalProducts: () => Promise<number>;
   syncProgress: { current: number; total: number } | null;
-  addToCart: (product: Product) => void;
+  addToCart: (addition: CartAddition) => void;
   removeFromCart: (index: number) => void;
   clearCart: () => void;
   createOrder: (order: Omit<CustomerOrder, "id" | "createdAt" | "status">) => void;
@@ -162,7 +173,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const cart = useMemo(() => storedCart.flatMap((item) => {
     const product = products.find((entry) => String(entry.id) === item.productId);
-    return product ? Array.from({ length: item.quantity }, () => product) : [];
+    if (!product) return [];
+    // Priced from the live catalog rather than anything stored, so price edits reach carts
+    // already in progress and a hand-edited localStorage entry cannot set its own price.
+    const variant = findVariant(product, item.variantId);
+    const unit: CartItem = { ...product, price: variant.price, oldPrice: variant.originalPrice, variant: variant.size };
+    return Array.from({ length: item.quantity }, () => unit);
   }), [products, storedCart]);
 
   const value: StoreContextValue = {
@@ -298,10 +314,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setSyncProgress(null);
       }
     },
-    addToCart: (product) => setStoredCart((current) => {
-      const existing = current.find((item) => item.productId === String(product.id));
-      if (existing) return current.map((item) => item === existing ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { productId: String(product.id), quantity: 1 }];
+    // unitPrice and totalPrice are not stored: the cart re-prices each line from the catalog on read.
+    addToCart: ({ productId, variant, quantity }) => setStoredCart((current) => {
+      const id = String(productId);
+      const variantId = variant || undefined;
+      const count = Number.isFinite(quantity) && quantity >= 1 ? Math.floor(quantity) : 1;
+      const existing = current.find((item) => item.productId === id && item.variantId === variantId);
+      if (existing) return current.map((item) => item === existing ? { ...item, quantity: item.quantity + count } : item);
+      return [...current, { productId: id, ...(variantId ? { variantId } : {}), quantity: count }];
     }),
     removeFromCart: (index) => setStoredCart((current) => {
       let itemIndex = 0;

@@ -10,7 +10,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { formatNumber, useLanguage } from "@/context/LanguageContext";
 import { CATEGORIES, categoryHref, categoryLabel } from "@/lib/categories";
 import { matchesQuery, type Product } from "@/lib/products";
-import { useStore } from "@/lib/store";
+import { cartAddition, useStore } from "@/lib/store";
 
 /** /search?q= — matches the query against product names across every category.
  *  The page keys this component on the query, so a new ?q= remounts it with that text. */
@@ -40,7 +40,7 @@ export default function SearchRoute({ query }: { query: string }) {
               products={results}
               likedIds={liked}
               onToggleWishlist={(id) => setLiked((current) => current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id])}
-              onAddToCart={addToCart}
+              onAddToCart={(product) => addToCart(cartAddition(product))}
               onQuickView={openProduct}
             />
           : catalogReady || !search.trim()

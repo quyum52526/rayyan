@@ -36,12 +36,12 @@ type Translation = {
   };
   card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string };
   pdp: {
-    back: string; home: string; cart: string; reviews: string; inStock: string; weightHeading: string; variants: string[];
+    back: string; home: string; cart: string; reviews: string; inStock: string; weightHeading: string;
     decrease: string; increase: string; addToCart: string; buyNow: string; deliveryTitle: string; deliveryNote: string;
     trustRow: string[]; tabs: { description: string; nutrition: string; storage: string }; tabEmpty: string; off: string;
   };
   cart: { kicker: string; title: string; close: string; freeDelivery: string; freeDeliveryRemaining: string; subtotal: string; deliveryNote: string; checkout: string; removeItem: string; defaultWeight: string };
-  modal: { close: string; chooseWeight: string; reviews: string; addToCart: string; deliveryNote: string; inStock: string; off: string; variants: string[] };
+  modal: { close: string; chooseWeight: string; reviews: string; addToCart: string; deliveryNote: string; inStock: string; off: string };
   checkout: {
     back: string; secure: string; kicker: string; heading: string; intro: string; name: string; namePlaceholder: string;
     phone: string; phonePlaceholder: string; address: string; addressPlaceholder: string; zone: string; zoneInside: string;
@@ -92,7 +92,7 @@ const translations: Record<Language, Translation> = {
       kicker: "কেন RAYYAN?", headingTop: "স্বাদের শুরু হোক", headingEm: "বিশুদ্ধতা থেকে",
       body: "আমরা বিশ্বাস করি, ভালো রান্নার জন্য ভালো উপকরণই যথেষ্ট। তাই প্রতিটি মসলা ও সবজি বেছে নিই স্বচ্ছ উৎস থেকে, রাখি তার স্বাভাবিক গন্ধ, রঙ এবং পুষ্টি।",
       points: ["কৃষকের কাছ থেকে সরাসরি", "ছোট ব্যাচে তাজা প্যাকিং"], cta: "RAYYAN সম্পর্কে জানুন",
-      badgeNumber: "০১", badgeText: "উৎস থেকে আপনার ঘরে", imageAlt: "প্রাকৃতিক মসলা",
+      badgeNumber: "০১", badgeText: "উৎস থেকে আপনার ঘরে", imageAlt: "RAYYAN-এর মসলার জার ও প্যাক",
     },
     footer: {
       tagline: "রসনায় বিশুদ্ধতা", copyright: "© ২০২৬ RAYYAN Bangladesh · সর্বস্বত্ব সংরক্ষিত",
@@ -134,7 +134,7 @@ const translations: Record<Language, Translation> = {
     card: { kicker: "RAYYAN GOURMET", addToCart: "কার্ট-এ যোগ করুন", quickView: "দ্রুত দেখুন", wishlist: "উইশলিস্টে যোগ করুন", cartAction: "কার্টে যোগ করুন", ingredientsAlt: "উপকরণ", off: "OFF" },
     pdp: {
       back: "শপিং চালিয়ে যান", home: "হোম", cart: "কার্ট", reviews: "রিভিউ", inStock: "স্টকে আছে",
-      weightHeading: "ওজন / সাইজ", variants: ["১০০ গ্রাম", "২৫০ গ্রাম", "৫০০ গ্রাম কম্বো"],
+      weightHeading: "ওজন / সাইজ",
       decrease: "পরিমাণ কমান", increase: "পরিমাণ বাড়ান", addToCart: "কার্ট-এ যোগ করুন", buyNow: "সরাসরি অর্ডার করুন",
       deliveryTitle: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", deliveryNote: "সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা",
       trustRow: ["১০০% অর্গানিক", "ভ্যাকুয়াম প্যাকড", "ক্যাশ অন ডেলিভারি", "২৪–৪৮ ঘণ্টা"],
@@ -144,9 +144,9 @@ const translations: Record<Language, Translation> = {
     cart: {
       kicker: "আপনার শপিং ব্যাগ", title: "কার্ট", close: "কার্ট বন্ধ করুন", freeDelivery: "আপনার ডেলিভারি ফ্রি!",
       freeDeliveryRemaining: "আর {amount} টাকার পণ্য কিনলেই ফ্রি ডেলিভারি!", subtotal: "সাবটোটাল",
-      deliveryNote: "ডেলিভারি চার্জ চেকআউটে যুক্ত হবে", checkout: "চেকআউটে যান", removeItem: "পণ্য মুছুন", defaultWeight: "২৫০ গ্রাম",
+      deliveryNote: "ডেলিভারি চার্জ চেকআউটে যুক্ত হবে", checkout: "চেকআউটে যান", removeItem: "পণ্য মুছুন", defaultWeight: "১০০ গ্রাম",
     },
-    modal: { close: "বন্ধ করুন", chooseWeight: "ওজন বেছে নিন", reviews: "রিভিউ", addToCart: "কার্টে যোগ করুন", deliveryNote: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", inStock: "ইন স্টক", off: "OFF", variants: ["১০০ গ্রাম", "২৫০ গ্রাম", "৫০০ গ্রাম"] },
+    modal: { close: "বন্ধ করুন", chooseWeight: "ওজন বেছে নিন", reviews: "রিভিউ", addToCart: "কার্টে যোগ করুন", deliveryNote: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", inStock: "ইন স্টক", off: "OFF" },
     checkout: {
       back: "শপিং চালিয়ে যান", secure: "নিরাপদ চেকআউট", kicker: "শেষ ধাপ", heading: "অর্ডার নিশ্চিত করুন",
       intro: "আপনার ঠিকানা দিন, আমরা যত্ন করে প্যাক করে পাঠিয়ে দেব।", name: "আপনার নাম", namePlaceholder: "পুরো নাম লিখুন",
@@ -210,7 +210,7 @@ const translations: Record<Language, Translation> = {
       kicker: "Why RAYYAN?", headingTop: "Let flavor begin", headingEm: "with purity",
       body: "We believe good cooking needs nothing more than good ingredients. So we choose every spice and vegetable from transparent sources, keeping their natural aroma, color and nutrition intact.",
       points: ["Straight from the farmer", "Freshly packed in small batches"], cta: "Learn about RAYYAN",
-      badgeNumber: "01", badgeText: "From the source to your home", imageAlt: "Natural spices",
+      badgeNumber: "01", badgeText: "From the source to your home", imageAlt: "RAYYAN spice jars and pouches",
     },
     footer: {
       tagline: "Purity in every taste", copyright: "© 2026 RAYYAN Bangladesh · All rights reserved",
@@ -252,7 +252,7 @@ const translations: Record<Language, Translation> = {
     card: { kicker: "RAYYAN GOURMET", addToCart: "Add to cart", quickView: "Quick view", wishlist: "Add to wishlist", cartAction: "Add to cart", ingredientsAlt: "ingredients", off: "OFF" },
     pdp: {
       back: "Continue shopping", home: "Home", cart: "Cart", reviews: "reviews", inStock: "In stock",
-      weightHeading: "Weight / size", variants: ["100 g", "250 g", "500 g combo"],
+      weightHeading: "Weight / size",
       decrease: "Decrease quantity", increase: "Increase quantity", addToCart: "Add to cart", buyNow: "Order now",
       deliveryTitle: "Delivery in Dhaka within 24–48 hours", deliveryNote: "Cash on delivery available nationwide",
       trustRow: ["100% organic", "Vacuum packed", "Cash on delivery", "24–48 hours"],
@@ -262,9 +262,9 @@ const translations: Record<Language, Translation> = {
     cart: {
       kicker: "Your shopping bag", title: "Cart", close: "Close cart", freeDelivery: "Your delivery is free!",
       freeDeliveryRemaining: "Spend {amount} more for free delivery!", subtotal: "Subtotal",
-      deliveryNote: "Delivery charge is added at checkout", checkout: "Go to checkout", removeItem: "Remove item", defaultWeight: "250 g",
+      deliveryNote: "Delivery charge is added at checkout", checkout: "Go to checkout", removeItem: "Remove item", defaultWeight: "100 g",
     },
-    modal: { close: "Close", chooseWeight: "Choose a weight", reviews: "reviews", addToCart: "Add to cart", deliveryNote: "Delivery in Dhaka within 24–48 hours", inStock: "In stock", off: "OFF", variants: ["100 g", "250 g", "500 g"] },
+    modal: { close: "Close", chooseWeight: "Choose a weight", reviews: "reviews", addToCart: "Add to cart", deliveryNote: "Delivery in Dhaka within 24–48 hours", inStock: "In stock", off: "OFF" },
     checkout: {
       back: "Continue shopping", secure: "Secure checkout", kicker: "Final step", heading: "Confirm your order",
       intro: "Share your address and we will pack it with care and send it over.", name: "Your name", namePlaceholder: "Enter your full name",

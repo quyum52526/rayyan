@@ -13,7 +13,7 @@ type CategoryBannerProps = {
   showViewAll?: boolean;
 };
 
-/** The header bar that opens each category shelf: banner art, Bangla heading, subtitle, View All. */
+/** The card that opens each category shelf: banner art, Bangla heading, subtitle, View All. */
 export default function CategoryBanner({ slug, count, showViewAll = true }: CategoryBannerProps) {
   const { language, t } = useLanguage();
   const category = getCategory(slug);
@@ -33,7 +33,7 @@ export default function CategoryBanner({ slug, count, showViewAll = true }: Cate
       </div>
       {showViewAll && (
         <Link className="category-banner-link" href={categoryHref(slug)}>
-          {t.categories.viewAll} <ArrowRight size={16} />
+          {t.categories.viewAll} <ArrowRight size={18} />
         </Link>
       )}
     </div>

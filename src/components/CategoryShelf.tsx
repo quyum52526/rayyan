@@ -22,13 +22,15 @@ export default function CategoryShelf({ slug, products, totalCount, catalogReady
   const { t } = useLanguage();
 
   return (
-    <section className="container category-shelf my-10" id={slug}>
-      <CategoryBanner slug={slug} count={totalCount} />
-      {products.length > 0
-        ? <ProductGrid products={products} {...handlers} />
-        : catalogReady
-          ? <div className="empty-state category-shelf-empty"><Search size={22} /><h3>{t.products.emptyTitle}</h3><p>{t.products.emptyBody}</p></div>
-          : null}
+    <section className="category-shelf my-10" id={slug}>
+      <div className="container">
+        <CategoryBanner slug={slug} count={totalCount} />
+        {products.length > 0
+          ? <ProductGrid products={products} {...handlers} />
+          : catalogReady
+            ? <div className="empty-state category-shelf-empty"><Search size={22} /><h3>{t.products.emptyTitle}</h3><p>{t.products.emptyBody}</p></div>
+            : null}
+      </div>
     </section>
   );
 }
