@@ -20,7 +20,7 @@ import { isHotDeal, matchesQuery, type Product } from "@/lib/products";
 // Positional match to t.products.tabs. null means "no category filter".
 const productTabCategories: (CategorySlug[] | null)[] = [
   null,
-  ["basic-spices", "aromatics-powder"],
+  ["basic-spices", "whole-spices-aromatics", "aromatics-powder"],
   ["ready-to-cook"],
 ];
 

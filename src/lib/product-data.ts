@@ -36,7 +36,7 @@ export class CatalogWriteRefusedError extends Error {
 
 /**
  * Every catalog read funnels through here, so this is where legacy category values are
- * folded onto the five category slugs and the hot-deals flag is recovered.
+ * folded onto the six category slugs and the hot-deals flag is recovered.
  */
 function assertProductArray(value: unknown, origin: string): Product[] {
   if (!Array.isArray(value)) {

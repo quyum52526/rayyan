@@ -105,6 +105,7 @@ const translations: Record<Language, Translation> = {
       categoriesTitle: "CATEGORIES",
       categoryLinks: [
         { label: "মৌলিক মশলা", href: "/category/basic-spices" },
+        { label: "আস্ত মশলা ও সুবাস", href: "/category/whole-spices-aromatics" },
         { label: "গুঁড়া মসলা ও বাটা বিকল্প", href: "/category/aromatics-powder" },
         { label: "রেডি-টু-কুক সবজি", href: "/category/ready-to-cook" },
         { label: "ভেষজ ও হেলথ ড্রিংকস", href: "/category/wellness-drinks" },
@@ -223,6 +224,7 @@ const translations: Record<Language, Translation> = {
       categoriesTitle: "CATEGORIES",
       categoryLinks: [
         { label: "Basic Spices", href: "/category/basic-spices" },
+        { label: "Whole Spices & Aromatics", href: "/category/whole-spices-aromatics" },
         { label: "Aromatics & Herb Powders", href: "/category/aromatics-powder" },
         { label: "Ready to Cook", href: "/category/ready-to-cook" },
         { label: "Wellness & Fruit Drinks", href: "/category/wellness-drinks" },

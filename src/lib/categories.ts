@@ -1,7 +1,7 @@
 import type { Language } from "@/context/LanguageContext";
 
-/** The five storefront categories. Every product resolves to exactly one of these. */
-export const CATEGORY_SLUGS = ["basic-spices", "aromatics-powder", "ready-to-cook", "wellness-drinks", "dry-food"] as const;
+/** The six storefront categories. Every product resolves to exactly one of these. */
+export const CATEGORY_SLUGS = ["basic-spices", "whole-spices-aromatics", "aromatics-powder", "ready-to-cook", "wellness-drinks", "dry-food"] as const;
 
 export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
 
@@ -28,6 +28,17 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
     banner: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1100&q=85",
     altBn: "খাঁটি মৌলিক মশলা",
     altEn: "Pure basic spices",
+  },
+  {
+    slug: "whole-spices-aromatics",
+    bn: "আস্ত মশলা ও সুবাস",
+    en: "Whole Spices & Aromatics",
+    subtitleBn: "এলাচ, দারচিনি, লবঙ্গ, গোলমরিচ এবং স্পেশাল আস্ত মশলা কম্বো",
+    subtitleEn: "Cardamom, cinnamon, cloves, black pepper and premium whole spice combos",
+    // Swap for /images/banners/whole-spices-banner.webp once that art lands in public/.
+    banner: "https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&w=1100&q=85",
+    altBn: "আস্ত মশলা ও সুবাসিত মশলা",
+    altEn: "Whole spices and aromatics",
   },
   {
     slug: "aromatics-powder",
@@ -71,11 +82,11 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
   },
 ];
 
-/** Products that fall outside the five categories land here rather than disappearing. */
+/** Products that fall outside the six categories land here rather than disappearing. */
 export const DEFAULT_CATEGORY_SLUG: CategorySlug = "basic-spices";
 
 /**
- * The weekly-hot-deals flag is a promo marker, never one of the five categories:
+ * The weekly-hot-deals flag is a promo marker, never one of the six categories:
  * a hot-deal product still belongs to its real category section.
  */
 export const HOT_DEALS_SLUG = "weekly-hot-deals";
@@ -90,8 +101,9 @@ const hotDealAliases = new Set(["weekly-hot-deals", "hot-sales", "hot-deals", "w
 const legacyCategoryMap: Readonly<Record<string, CategorySlug>> = {
   "গুঁড়া মসলা": "basic-spices",
   "powder-spices": "basic-spices",
-  "গোটা মসলা": "basic-spices",
-  "whole-spices": "basic-spices",
+  "গোটা মসলা": "whole-spices-aromatics",
+  "whole-spices": "whole-spices-aromatics",
+  "আস্ত মশলা": "whole-spices-aromatics",
   "রেডি-টু-কুক": "ready-to-cook",
   "রেডি-টু-কুক সবজি": "ready-to-cook",
   "প্রিমিয়াম কম্বো": "basic-spices",
@@ -117,7 +129,7 @@ export function isHotDealsValue(value: string | undefined): boolean {
 
 /**
  * Maps any stored category value — new slug, legacy slug, legacy Bangla name, or the
- * hot-deals promo marker — onto one of the five category slugs.
+ * hot-deals promo marker — onto one of the six category slugs.
  */
 export function resolveCategorySlug(value: string | undefined): CategorySlug {
   if (!value) return DEFAULT_CATEGORY_SLUG;
@@ -127,11 +139,17 @@ export function resolveCategorySlug(value: string | undefined): CategorySlug {
 }
 
 /**
- * Keyword hints for records whose stored category predates the five-slug schema. The legacy
+ * Keyword hints for records whose stored category predates the six-slug schema. The legacy
  * Bangla name "গুঁড়া মসলা" covered both basic spices and the onion/ginger/garlic powders, so
  * the product name is the only thing that separates them.
  */
 const categoryKeywords: readonly { slug: CategorySlug; keywords: readonly string[] }[] = [
+  // Ahead of aromatics-powder: a whole-spice name is the more specific signal, and the two
+  // keyword sets never overlap — "গোলমরিচ" is not the aromatics list's "কাঁচা মরিচ".
+  {
+    slug: "whole-spices-aromatics",
+    keywords: ["cardamom", "cinnamon", "clove", "black pepper", "bay leaf", "star anise", "nutmeg", "mace", "whole spice", "এলাচ", "দারচিনি", "লবঙ্গ", "গোলমরিচ", "তেজপাতা", "জয়ত্রী", "জায়ফল", "আস্ত মশলা", "গোটা মসলা"],
+  },
   {
     slug: "aromatics-powder",
     keywords: ["onion", "ginger", "garlic", "green chili", "green chilli", "পেঁয়াজ", "আদা", "রসুন", "কাঁচা মরিচ"],
@@ -152,7 +170,7 @@ const categoryKeywords: readonly { slug: CategorySlug; keywords: readonly string
 
 /**
  * Best-guess category from a product's names. Only consulted for records that do not already
- * carry one of the five slugs, so an admin's explicit choice always wins.
+ * carry one of the six slugs, so an admin's explicit choice always wins.
  */
 export function inferCategorySlug(...names: (string | undefined)[]): CategorySlug | undefined {
   const haystack = names.filter((name): name is string => Boolean(name)).join(" ").toLowerCase();

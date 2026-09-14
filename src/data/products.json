@@ -1,1 +1,207 @@
-[]
+[
+  {
+    "id": 9001,
+    "slug": "green-cardamom",
+    "sku": "RY-WSP-001",
+    "name": "Green Cardamom",
+    "bn": "প্রিমিয়াম সবুজ এলাচ",
+    "price": 420,
+    "oldPrice": 480,
+    "weight": "১০০ গ্রাম",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম",
+        "price": 420,
+        "originalPrice": 480
+      },
+      {
+        "size": "২৫০ গ্রাম",
+        "price": 1020,
+        "originalPrice": 1150
+      },
+      {
+        "size": "৫০০ গ্রাম",
+        "price": 1980,
+        "originalPrice": 2250
+      }
+    ],
+    "stock": 100,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/green-cardamom.webp",
+    "image2": "/images/products/whole-spices/green-cardamom.webp",
+    "description": "সম্পূর্ণ বাছাইকৃত, সতেজ ও তীব্র সুবাসযুক্ত সবুজ এলাচ। রান্নায় ও মিষ্টি খাবারে আসল শাহী স্বাদ আনে।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  },
+  {
+    "id": 9002,
+    "slug": "ceylon-cinnamon-sticks",
+    "sku": "RY-WSP-002",
+    "name": "Ceylon Cinnamon Sticks",
+    "bn": "প্রিমিয়াম দারচিনি স্টিক",
+    "price": 120,
+    "oldPrice": 145,
+    "weight": "১০০ গ্রাম",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম",
+        "price": 120,
+        "originalPrice": 145
+      },
+      {
+        "size": "২৫০ গ্রাম",
+        "price": 280,
+        "originalPrice": 340
+      },
+      {
+        "size": "৫০০ গ্রাম",
+        "price": 540,
+        "originalPrice": 650
+      },
+      {
+        "size": "১ কেজি",
+        "price": 1050,
+        "originalPrice": 1250
+      }
+    ],
+    "stock": 100,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/cinnamon-sticks.webp",
+    "image2": "/images/products/whole-spices/cinnamon-sticks.webp",
+    "description": "মিষ্টি ও কাঠের প্রাকৃতিক সুবাসযুক্ত রোলড দারচিনি। তরকারি, পোলাও ও রোস্টের জন্য অপরিহার্য।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  },
+  {
+    "id": 9003,
+    "slug": "whole-aromatic-cloves",
+    "sku": "RY-WSP-003",
+    "name": "Whole Aromatic Cloves",
+    "bn": "বাছাইকৃত লবঙ্গ",
+    "price": 240,
+    "oldPrice": 280,
+    "weight": "১০০ গ্রাম",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম",
+        "price": 240,
+        "originalPrice": 280
+      },
+      {
+        "size": "২৫০ গ্রাম",
+        "price": 580,
+        "originalPrice": 680
+      },
+      {
+        "size": "৫০০ গ্রাম",
+        "price": 1120,
+        "originalPrice": 1300
+      }
+    ],
+    "stock": 100,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/cloves.webp",
+    "image2": "/images/products/whole-spices/cloves.webp",
+    "description": "অক্ষত ও সতেজ গাঢ় বাদামী খাঁটি লবঙ্গ। তীব্র অ্যারোমা এবং ঔষধি গুণসম্পন্ন।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  },
+  {
+    "id": 9004,
+    "slug": "whole-black-peppercorns",
+    "sku": "RY-WSP-004",
+    "name": "Whole Black Peppercorns",
+    "bn": "আস্ত কালো গোলমরিচ",
+    "price": 160,
+    "oldPrice": 190,
+    "weight": "১০০ গ্রাম",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম",
+        "price": 160,
+        "originalPrice": 190
+      },
+      {
+        "size": "২৫০ গ্রাম",
+        "price": 380,
+        "originalPrice": 450
+      },
+      {
+        "size": "৫০০ গ্রাম",
+        "price": 730,
+        "originalPrice": 880
+      }
+    ],
+    "stock": 100,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/black-pepper.webp",
+    "image2": "/images/products/whole-spices/black-pepper.webp",
+    "description": "দানাযুক্ত ঝাঁঝালো স্বাদের খাঁটি কালো গোলমরিচ। স্যুপ, মাংস ও যে কোনো রান্নায় ফ্রেশ ঝাল স্বাদ তৈরি করে।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  },
+  {
+    "id": 9005,
+    "slug": "shahi-garam-masala-whole-blend",
+    "sku": "RY-CMB-001",
+    "name": "Shahi Garam Masala Whole Blend",
+    "bn": "শাহী আস্ত গরম মশলা কম্বো",
+    "price": 260,
+    "oldPrice": 310,
+    "weight": "১০০ গ্রাম জার",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম জার",
+        "price": 260,
+        "originalPrice": 310
+      },
+      {
+        "size": "২৫০ গ্রাম পাউচ",
+        "price": 620,
+        "originalPrice": 720
+      }
+    ],
+    "stock": 50,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/combo-garam-masala.webp",
+    "image2": "/images/products/whole-spices/combo-garam-masala.webp",
+    "description": "আস্ত সবুজ এলাচ, দারচিনি, লবঙ্গ, গোলমরিচ এবং স্টার অ্যানিসের প্রিমিয়াম ব্যালান্সড কম্বো জার।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  },
+  {
+    "id": 9006,
+    "slug": "shahi-biryani-kacchi-spice-blend",
+    "sku": "RY-CMB-002",
+    "name": "Shahi Biryani & Kacchi Spice Blend",
+    "bn": "শাহী বিরিয়ানি ও কাচ্চি স্পাইস কম্বো",
+    "price": 320,
+    "oldPrice": 380,
+    "weight": "১০০ গ্রাম জার",
+    "variants": [
+      {
+        "size": "১০০ গ্রাম জার",
+        "price": 320,
+        "originalPrice": 380
+      },
+      {
+        "size": "২৫০ গ্রাম পাউচ",
+        "price": 760,
+        "originalPrice": 890
+      }
+    ],
+    "stock": 50,
+    "rating": 5,
+    "reviews": 0,
+    "category": "whole-spices-aromatics",
+    "image": "/images/products/whole-spices/combo-shahi-biryani.webp",
+    "image2": "/images/products/whole-spices/combo-shahi-biryani.webp",
+    "description": "এলাচ, দারচিনি, স্টার অ্যানিস, জয়ফল, জয়ত্রী, লবঙ্গ ও শাহী জিরার নিখুঁত অনুপাতের স্পেশাল কাচ্চি ও বিরিয়ানি মশলা কম্বো।",
+    "storageInstructions": "শুষ্ক ও শীতল স্থানে এয়ারটাইট জারে সংরক্ষণ করুন।"
+  }
+]

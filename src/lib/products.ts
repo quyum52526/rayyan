@@ -19,7 +19,7 @@ export type Product = {
   rating: number;
   reviews: number;
   /**
-   * Storefront category. Normalized records hold one of the five CategorySlug values;
+   * Storefront category. Normalized records hold one of the six CategorySlug values;
    * records written before that schema can still hold a legacy slug or Bangla name, so
    * always read it through resolveCategorySlug / normalizeProduct.
    */
@@ -35,7 +35,7 @@ export type Product = {
   storageInstructions?: string;
 };
 
-/** A product whose category is guaranteed to be one of the five category slugs. */
+/** A product whose category is guaranteed to be one of the six category slugs. */
 export type NormalizedProduct = Product & { category: CategorySlug };
 
 /**
