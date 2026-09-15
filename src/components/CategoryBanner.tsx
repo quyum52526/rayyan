@@ -21,7 +21,9 @@ export default function CategoryBanner({ slug, count, showViewAll = true }: Cate
 
   return (
     <div className="category-banner">
-      <img className="category-banner-art" src={category.banner} alt={categoryAlt(slug, language)} />
+      {/* Every shelf banner sits below the fold. Without this React preloads all six during SSR,
+          and those remote images compete with the category deck art that is actually on screen. */}
+      <img className="category-banner-art" src={category.banner} alt={categoryAlt(slug, language)} loading="lazy" decoding="async" />
       <span className="category-banner-veil" />
       <div className="category-banner-copy">
         <p className="category-banner-kicker">

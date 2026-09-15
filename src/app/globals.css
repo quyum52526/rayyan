@@ -287,7 +287,9 @@ button, input, textarea, select { font: inherit; } button, a { -webkit-tap-highl
 /* Must trail the position rules: the exiting card still carries .deck-card-0. It lifts and fades
    rather than flinging sideways, so it never sweeps across the neighbouring deck. */
 .deck-card--exit, .deck:hover .deck-card--exit { transform:translate(20px,-8%) rotate(10deg) scale(.9); opacity:0; z-index:4; }
-.deck-card--empty { z-index:3; }
+/* Empty categories draw a tinted tile rather than loading a remote stock photo that would
+   imply products that are not there. */
+.deck-card--empty { z-index:3; background:linear-gradient(150deg,#5b1024 0%,#2f1118 58%,#22201d 100%); }
 @media (max-width:1023px) { .deck-track { --deck-basis:50%; --deck-shift:-50%; } }
 /* One deck per screen: a smaller gutter (32px between decks) and a slightly narrower stack. */
 @media (max-width:767px) { .deck-slot { padding:0 16px; }.deck-track { --deck-basis:100%; --deck-shift:-100%; }.deck-head, .deck-cards { max-width:280px; } }

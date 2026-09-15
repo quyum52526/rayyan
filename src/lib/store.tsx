@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { PaymentMethod } from "@/lib/payment";
 import { defaultVariant, findVariant, normalizeProducts, type Product, type ProductVariant } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
@@ -112,15 +112,19 @@ function normalizeCart(value: unknown, availableProducts: Product[]): StoredCart
   }, []);
 }
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [catalogReady, setCatalogReady] = useState(false);
+export function StoreProvider({ children, initialProducts = [] }: { children: ReactNode; initialProducts?: Product[] }) {
+  // Server-rendered seed: the catalog the layout already read, so the first paint shows real
+  // counts and product art rather than an empty catalog waiting on the client fetch.
+  const [products, setProducts] = useState<Product[]>(() => normalizeProducts(initialProducts));
+  const [catalogReady, setCatalogReady] = useState(initialProducts.length > 0);
   const [catalogSource, setCatalogSource] = useState<"cloud" | "local">("cloud");
   const [pendingProducts, setPendingProductsState] = useState<Product[]>([]);
   const [syncProgress, setSyncProgress] = useState<{ current: number; total: number } | null>(null);
   const [storedCart, setStoredCart] = useState<StoredCartItem[]>([]);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  // Read inside the load effect without making the seed a dependency of it.
+  const seededProducts = useRef(products);
 
   useEffect(() => {
     let active = true;
@@ -145,7 +149,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (active) setCatalogSource("cloud");
       } catch (error) {
         console.warn("Unable to load products from the API; using the local catalog.", error);
-        activeProducts = (localProducts || []).filter((product) => !deletedIds.has(product.id));
+        // The server-rendered seed outranks nothing, but it beats going blank when neither the
+        // API nor the IndexedDB cache can answer.
+        activeProducts = (localProducts || seededProducts.current).filter((product) => !deletedIds.has(product.id));
         if (active) setCatalogSource("local");
       }
       if (active) {

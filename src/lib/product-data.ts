@@ -169,3 +169,17 @@ export async function saveProducts(
   await fs.writeFile(localCatalogPath, content, "utf8");
   return nextProducts;
 }
+
+/**
+ * Catalog read for render paths that must never take the page down with them.
+ * A failed read degrades to an empty seed and the client store then retries through
+ * /api/products, which is exactly the path that already handles being offline.
+ */
+export async function getProductsSafe(): Promise<Product[]> {
+  try {
+    return await getProducts();
+  } catch (error) {
+    console.error("[catalog] server-side seed read failed; falling back to the client fetch.", error);
+    return [];
+  }
+}

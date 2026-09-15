@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
@@ -15,6 +16,8 @@ const STEP_MS = 3000;
 const EXIT_MS = 380;
 /** Cards drawn per deck. Categories with fewer products simply render a shorter stack. */
 const CARDS_PER_DECK = 3;
+/** The deck column is capped at 300px (280px on phones), so the art never needs to be wider. */
+const CARD_SIZES = "(max-width: 767px) 280px, 300px";
 
 export default function CategoryDeckCarousel({ products }: { products: Product[] }) {
   const { language, t } = useLanguage();
@@ -28,7 +31,14 @@ export default function CategoryDeckCarousel({ products }: { products: Product[]
 
   const decks = useMemo(() => CATEGORIES.map((category) => {
     const matches = products.filter((product) => product.category === category.slug);
-    return { category, cards: matches.slice(0, CARDS_PER_DECK), totalCount: matches.length };
+    // The count is every product in the category. The stack is only the ones that can actually
+    // draw, newest first, so a product saved without art never blanks a card — and never costs
+    // the category a product in its count either.
+    const cards = matches
+      .filter((product) => Boolean(product.image))
+      .sort((a, b) => b.id - a.id)
+      .slice(0, CARDS_PER_DECK);
+    return { category, cards, totalCount: matches.length };
   }), [products]);
 
   // Clone the first screenful onto the end so the last step slides into a copy of the start,
@@ -105,10 +115,9 @@ export default function CategoryDeckCarousel({ products }: { products: Product[]
                 </div>
                 <div className="deck-cards">
                   {cards.length === 0
-                    // Nothing in stock yet: the category's own banner stands in for the stack so the
-                    // row keeps its rhythm instead of leaving a hole.
-                    ? <span className="deck-card deck-card-0 deck-card--empty">
-                        <img src={category.banner} alt={categoryAlt(category.slug, language)} loading="lazy" />
+                    // Nothing in this category yet. A tinted tile holds the row's rhythm; the old
+                    // remote stock photo only ever misrepresented the category as stocked.
+                    ? <span className="deck-card deck-card-0 deck-card--empty" role="img" aria-label={categoryAlt(category.slug, language)}>
                         <span className="deck-card-veil" />
                         <span className="deck-card-body"><h4>{label}</h4></span>
                       </span>
@@ -116,9 +125,20 @@ export default function CategoryDeckCarousel({ products }: { products: Product[]
                       const position = (cardIndex - cardTick % cards.length + cards.length) % cards.length;
                       // A single-card stack has nowhere to swipe to, so it stays put.
                       const isExiting = exiting && cards.length > 1 && position === 0;
+                      // Front cards of the first screenful are above the fold. They are not
+                      // preloaded: three of them compete to be the LCP element, which is exactly
+                      // the case the docs say to use eager loading for instead.
+                      const aboveTheFold = slot < VISIBLE && position === 0;
                       return (
                         <span className={`deck-card deck-card-${position} ${isExiting ? "deck-card--exit" : ""}`} key={product.id}>
-                          <img src={product.image} alt={productTitle(product, language)} loading="lazy" />
+                          <Image
+                            src={product.image}
+                            alt={productTitle(product, language)}
+                            fill
+                            sizes={CARD_SIZES}
+                            loading={aboveTheFold ? "eager" : "lazy"}
+                            fetchPriority={aboveTheFold ? "high" : "auto"}
+                          />
                           <span className="deck-card-veil" />
                           <span className="deck-card-body">
                             <h4>{productTitle(product, language)}</h4>
