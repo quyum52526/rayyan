@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     // some older catalog records still point at Unsplash. next/image refuses any host that is
     // not listed here, so both have to be declared for the category decks to render.
     remotePatterns: [
-      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "**.public.blob.vercel-storage.com", pathname: "/**" },
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },

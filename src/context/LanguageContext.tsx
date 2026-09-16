@@ -40,7 +40,7 @@ type Translation = {
     decrease: string; increase: string; addToCart: string; buyNow: string; deliveryTitle: string; deliveryNote: string;
     trustRow: string[]; tabs: { description: string; nutrition: string; storage: string }; tabEmpty: string; off: string;
   };
-  cart: { kicker: string; title: string; close: string; freeDelivery: string; freeDeliveryRemaining: string; subtotal: string; deliveryNote: string; checkout: string; removeItem: string; defaultWeight: string };
+  cart: { kicker: string; title: string; close: string; deliveryRates: string; subtotal: string; deliveryNote: string; checkout: string; removeItem: string; defaultWeight: string };
   modal: { close: string; chooseWeight: string; reviews: string; addToCart: string; deliveryNote: string; inStock: string; off: string };
   checkout: {
     back: string; secure: string; kicker: string; heading: string; intro: string; name: string; namePlaceholder: string;
@@ -121,8 +121,8 @@ const translations: Record<Language, Translation> = {
         { label: "আমাদের গল্প", href: "/#story" },
         { label: "পাইকারি অর্ডার", href: "/#products" },
       ],
-      contactTitle: "CONTACT", contactLabel: "অর্ডার ও সহায়তা", phone: "09610 000 000", email: "hello@rayyan.com.bd",
-      address: ["হাউস ১২, রোড ৫, ধানমন্ডি,", "ঢাকা ১২০৫, বাংলাদেশ"], hours: "শনি–বৃহস্পতি, সকাল ১০টা – রাত ৮টা",
+      contactTitle: "CONTACT", contactLabel: "অর্ডার ও সহায়তা", phone: "+8801962434901", email: "hello@rayyan.com.bd",
+      address: ["৪ নং ওয়ার্ড, চান্দগাঁও,", "চট্টগ্রাম, বাংলাদেশ"], hours: "শনি–বৃহস্পতি, সকাল ১০টা – রাত ৮টা",
       paymentLabel: "PAYMENT", paymentMethods: ["ক্যাশ অন ডেলিভারি", "বিকাশ", "নগদ", "রকেট", "VISA · MASTERCARD"],
       secureNote: "নিরাপদ এবং বিশ্বস্ত অর্ডার",
       legalLinks: [
@@ -143,8 +143,8 @@ const translations: Record<Language, Translation> = {
       tabEmpty: "এই পণ্যের জন্য তথ্য শীঘ্রই যুক্ত করা হবে।", off: "OFF",
     },
     cart: {
-      kicker: "আপনার শপিং ব্যাগ", title: "কার্ট", close: "কার্ট বন্ধ করুন", freeDelivery: "আপনার ডেলিভারি ফ্রি!",
-      freeDeliveryRemaining: "আর {amount} টাকার পণ্য কিনলেই ফ্রি ডেলিভারি!", subtotal: "সাবটোটাল",
+      kicker: "আপনার শপিং ব্যাগ", title: "কার্ট", close: "কার্ট বন্ধ করুন",
+      deliveryRates: "ডেলিভারি চার্জ — চট্টগ্রামের ভেতরে ৳৬০, চট্টগ্রামের বাহিরে ৳১২০", subtotal: "সাবটোটাল",
       deliveryNote: "ডেলিভারি চার্জ চেকআউটে যুক্ত হবে", checkout: "চেকআউটে যান", removeItem: "পণ্য মুছুন", defaultWeight: "১০০ গ্রাম",
     },
     modal: { close: "বন্ধ করুন", chooseWeight: "ওজন বেছে নিন", reviews: "রিভিউ", addToCart: "কার্টে যোগ করুন", deliveryNote: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", inStock: "ইন স্টক", off: "OFF" },
@@ -152,7 +152,7 @@ const translations: Record<Language, Translation> = {
       back: "শপিং চালিয়ে যান", secure: "নিরাপদ চেকআউট", kicker: "শেষ ধাপ", heading: "অর্ডার নিশ্চিত করুন",
       intro: "আপনার ঠিকানা দিন, আমরা যত্ন করে প্যাক করে পাঠিয়ে দেব।", name: "আপনার নাম", namePlaceholder: "পুরো নাম লিখুন",
       phone: "ফোন নম্বর", phonePlaceholder: "01XXXXXXXXX", address: "সম্পূর্ণ ঠিকানা", addressPlaceholder: "বাসা, রোড, এলাকা লিখুন",
-      zone: "ডেলিভারি জোন", zoneInside: "ঢাকার ভিতরে — ৳৬০", zoneOutside: "ঢাকার বাইরে — ৳১২০",
+      zone: "ডেলিভারি জোন", zoneInside: "চট্টগ্রামের ভেতরে — ৳৬০", zoneOutside: "চট্টগ্রামের বাহিরে — ৳১২০",
       paymentHeading: "পেমেন্ট পদ্ধতি", cod: "ক্যাশ অন ডেলিভারি", selected: "নির্বাচিত", placeOrder: "অর্ডার নিশ্চিত করুন", emptyCart: "কার্ট খালি",
       summaryKicker: "আপনার অর্ডার", summaryHeading: "অর্ডার সামারি", subtotal: "সাবটোটাল", delivery: "ডেলিভারি", grandTotal: "সর্বমোট",
       benefitDelivery: "ঢাকায় ২৪–৪৮ ঘণ্টায় ডেলিভারি", benefitCod: "পণ্য হাতে, তারপর পেমেন্ট", secureNote: "নিরাপদ এবং বিশ্বস্ত অর্ডার",
@@ -240,8 +240,8 @@ const translations: Record<Language, Translation> = {
         { label: "Our story", href: "/#story" },
         { label: "Wholesale orders", href: "/#products" },
       ],
-      contactTitle: "CONTACT", contactLabel: "Orders & support", phone: "09610 000 000", email: "hello@rayyan.com.bd",
-      address: ["House 12, Road 5, Dhanmondi,", "Dhaka 1205, Bangladesh"], hours: "Sat–Thu, 10:00 AM – 8:00 PM",
+      contactTitle: "CONTACT", contactLabel: "Orders & support", phone: "+8801962434901", email: "hello@rayyan.com.bd",
+      address: ["4 No. Ward, Chandgaon,", "Chittagong, Bangladesh"], hours: "Sat–Thu, 10:00 AM – 8:00 PM",
       paymentLabel: "PAYMENT", paymentMethods: ["Cash on delivery", "bKash", "Nagad", "Rocket", "VISA · MASTERCARD"],
       secureNote: "Safe and trusted ordering",
       legalLinks: [
@@ -262,8 +262,8 @@ const translations: Record<Language, Translation> = {
       tabEmpty: "Information for this product is coming soon.", off: "OFF",
     },
     cart: {
-      kicker: "Your shopping bag", title: "Cart", close: "Close cart", freeDelivery: "Your delivery is free!",
-      freeDeliveryRemaining: "Spend {amount} more for free delivery!", subtotal: "Subtotal",
+      kicker: "Your shopping bag", title: "Cart", close: "Close cart",
+      deliveryRates: "Delivery — ৳60 inside Chittagong, ৳120 outside Chittagong", subtotal: "Subtotal",
       deliveryNote: "Delivery charge is added at checkout", checkout: "Go to checkout", removeItem: "Remove item", defaultWeight: "100 g",
     },
     modal: { close: "Close", chooseWeight: "Choose a weight", reviews: "reviews", addToCart: "Add to cart", deliveryNote: "Delivery in Dhaka within 24–48 hours", inStock: "In stock", off: "OFF" },
@@ -271,7 +271,7 @@ const translations: Record<Language, Translation> = {
       back: "Continue shopping", secure: "Secure checkout", kicker: "Final step", heading: "Confirm your order",
       intro: "Share your address and we will pack it with care and send it over.", name: "Your name", namePlaceholder: "Enter your full name",
       phone: "Phone number", phonePlaceholder: "01XXXXXXXXX", address: "Full address", addressPlaceholder: "House, road, area",
-      zone: "Delivery zone", zoneInside: "Inside Dhaka — ৳60", zoneOutside: "Outside Dhaka — ৳120",
+      zone: "Delivery zone", zoneInside: "Inside Chittagong — ৳60", zoneOutside: "Outside Chittagong — ৳120",
       paymentHeading: "Payment method", cod: "Cash on delivery", selected: "Selected", placeOrder: "Confirm order", emptyCart: "Cart is empty",
       summaryKicker: "Your order", summaryHeading: "Order summary", subtotal: "Subtotal", delivery: "Delivery", grandTotal: "Total",
       benefitDelivery: "Delivery in Dhaka within 24–48 hours", benefitCod: "Pay once it reaches you", secureNote: "Safe and trusted ordering",

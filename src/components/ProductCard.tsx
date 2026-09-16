@@ -3,6 +3,7 @@
 import { Eye, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
+import { handleProductImageError } from "@/lib/imageFallback";
 
 export type CardProduct = {
   id: number;
@@ -35,8 +36,8 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
     <article className="product-card product-card-precision group">
       <div className="product-image product-media-swap">
         <Link className="product-card-link" href={`/products/${product.slug}`}>
-          <img className="product-media product-media-front" src={product.image} alt={title} />
-          <img className="product-media product-media-hover" src={product.image2 || product.image} alt={`${title} ${t.card.ingredientsAlt}`} />
+          <img className="product-media product-media-front" src={product.image} alt={title} onError={handleProductImageError} />
+          <img className="product-media product-media-hover" src={product.image2 || product.image} alt={`${title} ${t.card.ingredientsAlt}`} onError={handleProductImageError} />
           <span className={`product-discount ${product.tag === "ফ্রেশ" ? "fresh" : ""}`}>{discount}</span>
         </Link>
         <div className="product-quick-actions">

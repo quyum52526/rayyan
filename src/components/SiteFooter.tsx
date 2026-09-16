@@ -19,11 +19,20 @@ function YoutubeMark({ size = 16 }: BrandIconProps) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.75-1.77C18.3 5 12 5 12 5s-6.3 0-7.85.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.75 1.77C5.7 19 12 19 12 19s6.3 0 7.85-.43a2.5 2.5 0 0 0 1.75-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10.2 14.9V9.1L15.1 12l-4.9 2.9Z" /></svg>;
 }
 
+const WHATSAPP_URL = "https://wa.me/8801962434901";
+
+/** Normalises a stored phone string to an E.164 `tel:` target, local `0…` form included. */
+function telHref(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("880")) return `tel:+${digits}`;
+  return `tel:+880${digits.replace(/^0/, "")}`;
+}
+
 const socialLinks = [
   { label: "Facebook", href: "https://facebook.com", Icon: FacebookMark },
   { label: "Instagram", href: "https://instagram.com", Icon: InstagramMark },
   { label: "YouTube", href: "https://youtube.com", Icon: YoutubeMark },
-  { label: "WhatsApp", href: "https://wa.me/8809610000000", Icon: MessageCircle },
+  { label: "WhatsApp", href: WHATSAPP_URL, Icon: MessageCircle },
 ];
 
 export default function SiteFooter() {
@@ -84,7 +93,7 @@ export default function SiteFooter() {
           <div>
             <div className="footer-contact-block">
               <span className="footer-contact-label">{f.contactLabel}</span>
-              <a className="footer-phone" href={`tel:+880${f.phone.replace(/\D/g, "").replace(/^0/, "")}`}>{f.phone}</a>
+              <a className="footer-phone" href={telHref(f.phone)}>{f.phone}</a>
             </div>
             <div className="footer-contact-row"><Mail size={15} /><a className="footer-email" href={`mailto:${f.email}`}>{f.email}</a></div>
             <div className="footer-contact-row"><MapPin size={15} /><span>{f.address.map((line, index) => <span key={line}>{line}{index < f.address.length - 1 && <br />}</span>)}</span></div>

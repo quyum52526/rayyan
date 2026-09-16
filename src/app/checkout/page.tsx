@@ -7,6 +7,8 @@ import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/
 import PaymentMethodFields from "@/components/PaymentMethodFields";
 import { requiresTransactionId, type PaymentMethod } from "@/lib/payment";
 import { useStore } from "@/lib/store";
+import { handleProductImageError } from "@/lib/imageFallback";
+import { deliveryFeeFor } from "@/lib/shipping";
 
 export default function CheckoutPage() {
   const { cart, createOrder } = useStore();
@@ -20,7 +22,7 @@ export default function CheckoutPage() {
   const [paymentError, setPaymentError] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<{ paymentMethod: PaymentMethod; transactionId?: string; grandTotal: number } | null>(null);
-  const deliveryFee = zone === "inside" ? 60 : 120;
+  const deliveryFee = deliveryFeeFor(zone);
   const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
   const grandTotal = subtotal + deliveryFee;
   const needsTransactionId = requiresTransactionId(paymentMethod);
@@ -71,6 +73,6 @@ export default function CheckoutPage() {
       <h2>{t.payment.heading}</h2>
       <PaymentMethodFields value={paymentMethod} onChange={selectPaymentMethod} transactionId={transactionId} onTransactionIdChange={(next) => { setTransactionId(next); setPaymentError(""); }} amount={grandTotal} error={paymentError} name="checkoutPagePayment" />
 
-      <button className="primary-button place-order" disabled={!cart.length}>{cart.length ? t.checkout.placeOrder : t.checkout.emptyCart} <ArrowLeft size={17} /></button></form><aside className="checkout-page-summary"><p className="kicker">{t.checkout.summaryKicker}</p><h2>{t.checkout.summaryHeading}</h2>{cart.map((item, index) => <div className="summary-item" key={`${item.id}-${index}`}><img src={item.image} alt={productTitle(item, language)} /><span>{productTitle(item, language)}<small>{item.variant || t.cart.defaultWeight} × {formatNumber(1, language)}</small></span><b>{formatPrice(item.price, language)}</b></div>)}<div className="summary-line"><span>{t.checkout.subtotal}</span><b>{formatPrice(subtotal, language)}</b></div><div className="summary-line"><span>{t.checkout.delivery}</span><b>{formatPrice(deliveryFee, language)}</b></div><div className="summary-line"><span>{t.payment.summaryLabel}</span><b>{t.payment.methods[paymentMethod]}</b></div><div className="summary-total"><span>{t.checkout.grandTotal}</span><strong>{formatPrice(grandTotal, language)}</strong></div><div className="checkout-benefit"><Truck size={16} /> {t.checkout.benefitDelivery}</div><div className="checkout-benefit"><ShoppingBag size={16} /> {t.checkout.benefitCod}</div></aside></div></main>
+      <button className="primary-button place-order" disabled={!cart.length}>{cart.length ? t.checkout.placeOrder : t.checkout.emptyCart} <ArrowLeft size={17} /></button></form><aside className="checkout-page-summary"><p className="kicker">{t.checkout.summaryKicker}</p><h2>{t.checkout.summaryHeading}</h2>{cart.map((item, index) => <div className="summary-item" key={`${item.id}-${index}`}><img src={item.image} alt={productTitle(item, language)} onError={handleProductImageError} /><span>{productTitle(item, language)}<small>{item.variant || t.cart.defaultWeight} × {formatNumber(1, language)}</small></span><b>{formatPrice(item.price, language)}</b></div>)}<div className="summary-line"><span>{t.checkout.subtotal}</span><b>{formatPrice(subtotal, language)}</b></div><div className="summary-line"><span>{t.checkout.delivery}</span><b>{formatPrice(deliveryFee, language)}</b></div><div className="summary-line"><span>{t.payment.summaryLabel}</span><b>{t.payment.methods[paymentMethod]}</b></div><div className="summary-total"><span>{t.checkout.grandTotal}</span><strong>{formatPrice(grandTotal, language)}</strong></div><div className="checkout-benefit"><Truck size={16} /> {t.checkout.benefitDelivery}</div><div className="checkout-benefit"><ShoppingBag size={16} /> {t.checkout.benefitCod}</div></aside></div></main>
   );
 }

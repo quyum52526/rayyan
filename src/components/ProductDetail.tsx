@@ -8,6 +8,7 @@ import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage 
 import { categoryHref, resolveCategorySlug } from "@/lib/categories";
 import { defaultVariant, productVariants, type Product } from "@/lib/products";
 import { cartAddition, useStore } from "@/lib/store";
+import { handleProductImageError } from "@/lib/imageFallback";
 
 export default function ProductDetail({ product }: { product: Product }) {
   const { addToCart } = useStore();
@@ -55,7 +56,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           <div className="pdp-info-tabs"><div className="pdp-tab-list" role="tablist">{tabs.map((tab) => <button className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} role="tab" aria-selected={activeTab === tab.id} key={tab.id}>{tab.label}</button>)}</div><div className="pdp-tab-panel" role="tabpanel"><p>{detail[activeTab] || t.pdp.tabEmpty}</p></div></div>
         </div>
       </section>
-      {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">{t.cart.kicker}</p><h2>{t.cart.title} <span>({formatNumber(quantity, language)})</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label={t.cart.close}><X size={20} /></button></div><div className="drawer-items"><div className="drawer-item"><img src={product.image} alt={title} /><div><h3>{title}</h3><p>{selectedVariant.size || t.cart.defaultWeight} × {formatNumber(quantity, language)}</p><strong>{formatPrice(total, language)}</strong></div></div></div><div className="drawer-footer"><div><span>{t.cart.subtotal}</span><strong>{formatPrice(total, language)}</strong></div><p>{t.cart.deliveryNote}</p><Link className="primary-button checkout-button" href="/checkout">{t.cart.checkout} <ArrowRight size={17} /></Link></div></aside></div>}
+      {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(event) => event.stopPropagation()}><div className="drawer-header"><div><p className="kicker">{t.cart.kicker}</p><h2>{t.cart.title} <span>({formatNumber(quantity, language)})</span></h2></div><button className="close-button" onClick={() => setCartOpen(false)} aria-label={t.cart.close}><X size={20} /></button></div><div className="drawer-items"><div className="drawer-item"><img src={product.image} alt={title} onError={handleProductImageError} /><div><h3>{title}</h3><p>{selectedVariant.size || t.cart.defaultWeight} × {formatNumber(quantity, language)}</p><strong>{formatPrice(total, language)}</strong></div></div></div><div className="drawer-footer"><div><span>{t.cart.subtotal}</span><strong>{formatPrice(total, language)}</strong></div><p>{t.cart.deliveryNote}</p><Link className="primary-button checkout-button" href="/checkout">{t.cart.checkout} <ArrowRight size={17} /></Link></div></aside></div>}
     </main>
   );
 }

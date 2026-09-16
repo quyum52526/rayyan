@@ -3,6 +3,7 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { handleProductImageError } from "@/lib/imageFallback";
 
 type GalleryAsset = {
   type: "image" | "video";
@@ -66,11 +67,11 @@ export default function ProductGallery({ productName, frontImage, detailImage, v
         const bounds = event.currentTarget.getBoundingClientRect();
         setZoomOrigin(`${((event.clientX - bounds.left) / bounds.width) * 100}% ${((event.clientY - bounds.top) / bounds.height) * 100}%`);
       }} onMouseLeave={() => setZoomOrigin("50% 50%")}>
-        {activeAsset.type === "image" ? <img className="gallery-main-media" src={activeAsset.src} alt={activeAsset.alt} style={{ transformOrigin: zoomOrigin }} /> : <div className="gallery-video-wrap"><video ref={videoRef} className="gallery-main-media" src={activeAsset.src} poster={detailImage} muted={isMuted} loop playsInline autoPlay={false} /><button className="gallery-play-button" onClick={toggleVideo} aria-label={isPlaying ? t.gallery.pauseVideo : t.gallery.playVideo}>{isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}</button><button className="gallery-muted" onClick={toggleSound} aria-label={isMuted ? t.gallery.unmute : t.gallery.mute}>{isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />} {isMuted ? t.gallery.muted : t.gallery.soundOn}</button></div>}
+        {activeAsset.type === "image" ? <img className="gallery-main-media" src={activeAsset.src} alt={activeAsset.alt} style={{ transformOrigin: zoomOrigin }} onError={handleProductImageError} /> : <div className="gallery-video-wrap"><video ref={videoRef} className="gallery-main-media" src={activeAsset.src} poster={detailImage} muted={isMuted} loop playsInline autoPlay={false} /><button className="gallery-play-button" onClick={toggleVideo} aria-label={isPlaying ? t.gallery.pauseVideo : t.gallery.playVideo}>{isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}</button><button className="gallery-muted" onClick={toggleSound} aria-label={isMuted ? t.gallery.unmute : t.gallery.mute}>{isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />} {isMuted ? t.gallery.muted : t.gallery.soundOn}</button></div>}
   <span className="gallery-asset-label">{activeAsset.label}</span>
       </div>
       <div className="gallery-thumbnails" role="tablist" aria-label={t.gallery.media}>
-        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} ${t.gallery.view}`} key={asset.label}><img src={asset.type === "video" ? detailImage : asset.src} alt="" />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
+        {assets.map((asset, index) => <button className={`gallery-thumbnail ${index === activeIndex ? "active" : ""}`} onClick={() => selectAsset(index)} role="tab" aria-selected={index === activeIndex} aria-label={`${asset.label} ${t.gallery.view}`} key={asset.label}><img src={asset.type === "video" ? detailImage : asset.src} alt="" onError={handleProductImageError} />{asset.type === "video" && <span className="thumbnail-play"><Play size={11} fill="currentColor" /></span>}<small>{asset.label}</small></button>)}
       </div>
     </div>
   );
