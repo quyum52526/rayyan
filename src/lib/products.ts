@@ -1,4 +1,5 @@
 import { inferCategorySlug, isCategorySlug, isHotDealsValue, resolveCategorySlug, type CategorySlug } from "@/lib/categories";
+import { applyLocalImageOverride } from "@/lib/local-product-images";
 
 /** One pack size a product is sold in, priced on its own. `size` is the shopper-facing label. */
 export type ProductVariant = { size: string; price: number; originalPrice: number };
@@ -50,7 +51,7 @@ export function normalizeProduct(product: Product): NormalizedProduct {
   const category = isCategorySlug(stored)
     ? stored
     : inferCategorySlug(product.name, product.bn) ?? resolveCategorySlug(stored);
-  const { variants: storedVariants, ...rest } = product;
+  const { variants: storedVariants, ...rest } = applyLocalImageOverride(product);
   const variants = sanitizeVariants(storedVariants);
   return { ...rest, category, ...(variants.length > 0 ? { variants } : {}), ...(hotDeal ? { hotDeal: true } : {}) };
 }
