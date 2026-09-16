@@ -110,6 +110,16 @@ export default function SiteFooter() {
           <span className="footer-packed">{f.packedIn}</span>
         </div>
       </div>
+
+      <div className="footer-credit">
+        <div className="container footer-credit-inner">
+          <span>Developed by kalam52526</span>
+          <span className="footer-credit-sep" aria-hidden="true">&bull;</span>
+          <a href="mailto:quyum52526@gmail.com">quyum52526@gmail.com</a>
+          <span className="footer-credit-sep" aria-hidden="true">&bull;</span>
+          <a href="https://wa.me/8801962434901" target="_blank" rel="noopener noreferrer">+8801962434901</a>
+        </div>
+      </div>
     </footer>
   );
 }
