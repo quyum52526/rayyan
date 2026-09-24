@@ -1,15 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
-    // Product art uploaded through /admin is served from the project's Vercel Blob store, and
-    // some older catalog records still point at Unsplash. next/image refuses any host that is
-    // not listed here, so both have to be declared for the category decks to render.
-    remotePatterns: [
-      { protocol: "https", hostname: "**.public.blob.vercel-storage.com", pathname: "/**" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-    ],
-  },
+  // No `images.remotePatterns`: every catalog asset and category banner is a local file
+  // under public/images/products/. The project's Vercel Blob store is over its plan quota
+  // and returns 403, so nothing is loaded from a remote host any more.
 };
 
 export default nextConfig;
