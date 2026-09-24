@@ -3,17 +3,16 @@ import path from "node:path";
 import { normalizeProducts, type Product } from "@/lib/products";
 
 const localCatalogPath = path.join(process.cwd(), "src/data/products.json");
-const catalogBlobPath = "catalog/products.json";
 
 /**
  * Where a catalog read actually came from.
- * "blob" / "local" are real reads of a real catalog and are safe to merge onto.
+ * "local" is a real read of a real catalog and is safe to merge onto.
  * "empty" means the catalog genuinely does not exist yet: the read yields no products
  * at all. It is never backfilled from bundled sample data, so a deleted product can
  * never come back, and it is not safe to blind-write over in case a real catalog
  * exists but was unreadable.
  */
-export type CatalogSource = "blob" | "local" | "empty";
+export type CatalogSource = "local" | "empty";
 
 export type CatalogRead = {
   products: Product[];
@@ -69,54 +68,12 @@ async function readLocalCatalog(): Promise<CatalogRead> {
 /**
  * Reads the catalog and reports its provenance. Throws on every failure that is not
  * a verified "catalog does not exist yet". Never silently degrades to seed data.
+ *
+ * `src/data/products.json` is the single source of truth: the project's Vercel Blob store
+ * is over its plan quota and answers reads with 403, so no blob call is made here at all.
  */
 export async function readCatalog(): Promise<CatalogRead> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-
-  if (!token) {
-    if (process.env.VERCEL) {
-      throw new CatalogReadError("BLOB_READ_WRITE_TOKEN is required to read the catalog on Vercel.");
-    }
-    return readLocalCatalog();
-  }
-
-  let blobs: Array<{ pathname: string; url: string }>;
-  try {
-    const { list } = await import("@vercel/blob");
-    const result = await list({ prefix: catalogBlobPath, limit: 10, token });
-    blobs = result.blobs;
-  } catch (error) {
-    throw new CatalogReadError("Failed to list catalog blobs.", { cause: error });
-  }
-
-  const targetBlob = blobs.find((blob) => blob.pathname === catalogBlobPath);
-  if (!targetBlob) {
-    // list() succeeded and the catalog genuinely is not there: empty store / first run.
-    return { products: [], source: "empty" };
-  }
-
-  let response: Response;
-  try {
-    // টাইমস্ট্যাম্প যোগ করে ক্যাশিং সম্পূর্ণ বন্ধ করা হলো
-    response = await fetch(`${targetBlob.url}?t=${Date.now()}`, { cache: "no-store" });
-  } catch (error) {
-    throw new CatalogReadError("Failed to fetch the catalog blob.", { cause: error });
-  }
-
-  if (!response.ok) {
-    throw new CatalogReadError(
-      `Catalog blob fetch failed with ${response.status} ${response.statusText}.`
-    );
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = await response.json();
-  } catch (error) {
-    throw new CatalogReadError("Catalog blob is not valid JSON.", { cause: error });
-  }
-
-  return { products: assertProductArray(parsed, catalogBlobPath), source: "blob" };
+  return readLocalCatalog();
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -143,29 +100,10 @@ export async function saveProducts(
   }
 
   const content = JSON.stringify(nextProducts, null, 2);
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
 
-  if (token) {
-    try {
-      const { put } = await import("@vercel/blob");
-      await put(catalogBlobPath, content, {
-        access: "public",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: "application/json",
-        token,
-      });
-      return nextProducts;
-    } catch (error) {
-      console.error("Failed to save products to Vercel Blob:", error);
-      throw error;
-    }
-  }
-
-  if (process.env.VERCEL) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is required for catalog writes on Vercel.");
-  }
-
+  // Writes go straight to the local catalog file. The blob store is quota-locked, so a
+  // write there would fail; note that this also means writes only persist on a writable
+  // filesystem (local dev), not on Vercel's read-only serverless filesystem.
   await fs.writeFile(localCatalogPath, content, "utf8");
   return nextProducts;
 }
