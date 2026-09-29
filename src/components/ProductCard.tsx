@@ -26,11 +26,19 @@ type ProductCardProps = {
   onQuickView: () => void;
 };
 
+/** Whole-number discount, or null when the product has no real markdown (unpriced / coming-soon items, missing or non-higher old price). */
+export function getDiscountPercent(price: number, oldPrice: number): number | null {
+  if (!Number.isFinite(price) || !Number.isFinite(oldPrice) || price <= 0 || oldPrice <= 0 || oldPrice <= price) return null;
+  const percent = Math.round((1 - price / oldPrice) * 100);
+  return percent > 0 ? percent : null;
+}
+
 export default function ProductCard({ product, liked, onToggleWishlist, onAddToCart, onQuickView }: ProductCardProps) {
   const { language, t } = useLanguage();
   const title = productTitle(product, language);
   const secondaryTitle = language === "en" ? product.bn : product.name;
-  const discount = `${formatNumber(Math.round((1 - product.price / product.oldPrice) * 100), language)}% ${t.card.off}`;
+  const discountPercent = getDiscountPercent(product.price, product.oldPrice);
+  const discount = discountPercent === null ? null : `${formatNumber(discountPercent, language)}% ${t.card.off}`;
 
   return (
     <article className="product-card product-card-precision group">
@@ -38,7 +46,7 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
         <Link className="product-card-link" href={`/products/${product.slug}`}>
           <img className="product-media product-media-front" src={product.image} alt={title} onError={handleProductImageError} />
           <img className="product-media product-media-hover" src={product.image2 || product.image} alt={`${title} ${t.card.ingredientsAlt}`} onError={handleProductImageError} />
-          <span className={`product-discount ${product.tag === "ফ্রেশ" ? "fresh" : ""}`}>{discount}</span>
+          {discount && <span className={`product-discount ${product.tag === "ফ্রেশ" ? "fresh" : ""}`}>{discount}</span>}
         </Link>
         <div className="product-quick-actions">
           <button className="quick-action quick-action-cart" onClick={onAddToCart} aria-label={t.card.cartAction}><ShoppingBag size={16} /></button>
@@ -51,7 +59,7 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
           <h3>{title}</h3>
           <p>{secondaryTitle}</p>
           <div className="product-bottom product-bottom-precision">
-            <div><strong>{formatPrice(product.price, language)}</strong><del>{formatPrice(product.oldPrice, language)}</del></div>
+            <div><strong>{formatPrice(product.price, language)}</strong>{discount && <del>{formatPrice(product.oldPrice, language)}</del>}</div>
           </div>
         </div>
       </Link>
