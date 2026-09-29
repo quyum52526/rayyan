@@ -279,6 +279,13 @@ button, input, textarea, select { font: inherit; } button, a { -webkit-tap-highl
 .deck-cards { position:relative; aspect-ratio:4/5; }
 .deck-card { position:absolute; inset:0; display:block; overflow:hidden; border:2px solid #5b102466; border-radius:16px; background:#22201d; box-shadow:0 14px 34px #5c0e2626; transition:transform .58s cubic-bezier(.22,1.1,.36,1), opacity .34s ease; will-change:transform; }
 .deck-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; border-radius:inherit; }
+.deck-card { isolation:isolate; background:#eee7dd; }
+/* Same dual layer as product cards: a blurred wash of the art behind the contained packshot. The media sits
+   above the caption band so jars are never hidden behind the name and price. !important beats next/image's fill inline styles. */
+.deck-card img.deck-card-backdrop { z-index:0; object-fit:cover; filter:blur(24px) brightness(.95); transform:translateZ(0) scale(1.2); will-change:transform; backface-visibility:hidden; pointer-events:none; }
+.deck-card img.deck-card-media { z-index:1; inset:14px 14px 58px !important; width:calc(100% - 28px) !important; height:calc(100% - 72px) !important; object-fit:contain; border-radius:0; }
+.deck-card-veil, .deck-card-body { z-index:2; }
+.deck-price.deck-price--soon { background:#f6efe6; color:var(--muted); font-family:'Hind Siliguri',sans-serif; }
 .deck-card-veil { position:absolute; inset:0; background:linear-gradient(to top,#22201deb 0%,#22201d5c 46%,transparent 78%); }
 .deck-card-body { position:absolute; right:14px; bottom:14px; left:14px; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
 .deck-card-body h4 { margin:0; color:#fff; font:600 14px/1.35 'Hind Siliguri',sans-serif; text-shadow:0 1px 3px #22201d99; }

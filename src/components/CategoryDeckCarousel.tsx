@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
 import { CATEGORIES, categoryAlt, categoryHref, categoryLabel } from "@/lib/categories";
-import type { Product } from "@/lib/products";
+import { getProductAvailability, type Product } from "@/lib/products";
 
 /** Decks visible at once on the widest layout. Also the number of slides cloned onto the end. */
 const VISIBLE = 3;
@@ -18,6 +18,8 @@ const EXIT_MS = 380;
 const CARDS_PER_DECK = 3;
 /** The deck column is capped at 300px (280px on phones), so the art never needs to be wider. */
 const CARD_SIZES = "(max-width: 767px) 280px, 300px";
+/** The backdrop is blurred to a colour wash, so the smallest optimised width is plenty. */
+const BACKDROP_SIZES = "96px";
 
 export default function CategoryDeckCarousel({ products }: { products: Product[] }) {
   const { language, t } = useLanguage();
@@ -132,6 +134,17 @@ export default function CategoryDeckCarousel({ products }: { products: Product[]
                       return (
                         <span className={`deck-card deck-card-${position} ${isExiting ? "deck-card--exit" : ""}`} key={product.id}>
                           <Image
+                            className="deck-card-backdrop"
+                            src={product.image}
+                            alt=""
+                            aria-hidden="true"
+                            fill
+                            sizes={BACKDROP_SIZES}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <Image
+                            className="deck-card-media"
                             src={product.image}
                             alt={productTitle(product, language)}
                             fill
@@ -142,7 +155,9 @@ export default function CategoryDeckCarousel({ products }: { products: Product[]
                           <span className="deck-card-veil" />
                           <span className="deck-card-body">
                             <h4>{productTitle(product, language)}</h4>
-                            <b className="deck-price">{formatPrice(product.price, language)}</b>
+                            {getProductAvailability(product) === "coming-soon"
+                              ? <b className="deck-price deck-price--soon">{t.card.comingSoon}</b>
+                              : <b className="deck-price">{formatPrice(product.price, language)}</b>}
                           </span>
                         </span>
                       );
