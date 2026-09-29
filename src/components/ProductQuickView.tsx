@@ -60,9 +60,9 @@ export default function ProductQuickView({ product, onClose, onAddToCart }: Prod
           </div>
           <div className="quantity-row">
             <div className="quantity">
-              <button type="button" onClick={() => setQuantity((current) => Math.max(1, current - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button>
+              <button type="button" disabled={!purchasable} onClick={() => setQuantity((current) => Math.max(1, current - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button>
               <b>{formatNumber(quantity, language)}</b>
-              <button type="button" onClick={() => setQuantity((current) => current + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button>
+              <button type="button" disabled={!purchasable} onClick={() => setQuantity((current) => current + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button>
             </div>
             <button className="primary-button modal-add" onClick={purchasable ? () => onAddToCart(cartAddition(product, selectedVariant, quantity)) : undefined} disabled={!purchasable}>{purchasable ? t.modal.addToCart : unavailableLabel} <ShoppingBag size={17} /></button>
           </div>
