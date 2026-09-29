@@ -55,8 +55,8 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
     <article className="product-card product-card-precision group">
       <div className="product-image product-media-swap">
         <Link className="product-card-link" href={`/products/${product.slug}`}>
-          <img className="product-backdrop product-backdrop-front" src={product.image} alt="" aria-hidden="true" onError={hideBackdrop} />
-          <img className="product-backdrop product-backdrop-hover" src={product.image2 || product.image} alt="" aria-hidden="true" onError={hideBackdrop} />
+          <img className="product-backdrop product-backdrop-front" src={product.image} alt="" aria-hidden="true" loading="lazy" decoding="async" onError={hideBackdrop} />
+          <img className="product-backdrop product-backdrop-hover" src={product.image2 || product.image} alt="" aria-hidden="true" loading="lazy" decoding="async" onError={hideBackdrop} />
           <img className="product-media product-media-front" src={product.image} alt={title} onError={handleProductImageError} />
           <img className="product-media product-media-hover" src={product.image2 || product.image} alt={`${title} ${t.card.ingredientsAlt}`} onError={handleProductImageError} />
           {discount && <span className={`product-discount ${product.tag === "ফ্রেশ" ? "fresh" : ""}`}>{discount}</span>}
