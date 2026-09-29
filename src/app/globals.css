@@ -332,3 +332,8 @@ button, input, textarea, select { font: inherit; } button, a { -webkit-tap-highl
   .admin-variant-head { display:none; } }
 @media (max-width:620px) { .offer-section { margin-block:32px; }
   .offer-banner { padding:20px; } }
+.all-products-toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin:18px 0 22px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.all-products-filters { flex-wrap:wrap; gap:8px 20px; }
+.all-products-sort { display:flex; align-items:center; gap:8px; color:var(--muted); font:600 12px 'Hind Siliguri',sans-serif; }
+.all-products-sort select { border:1px solid #dbcabc; background:#fff; padding:7px 10px; color:var(--maroon); font:600 12px 'Hind Siliguri',sans-serif; }
+@media (max-width: 620px) { .all-products-filters { justify-content:flex-start; } .all-products-sort { width:100%; justify-content:space-between; } }

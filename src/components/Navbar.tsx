@@ -74,7 +74,7 @@ export default function Navbar({ searchValue, onSearchChange, wishlistCount = 0,
           </button>
           <Link className="logo" href="/">RAYYAN<span>{t.nav.tagline}</span></Link>
           <nav className="desktop-nav">
-            <Link href="/#hot-deals">{t.nav.products}</Link>
+            <Link href="/products">{t.nav.products}</Link>
             <div
               className={`nav-dropdown ${categoriesOpen ? "open" : ""}`}
               ref={dropdownRef}
@@ -120,7 +120,7 @@ export default function Navbar({ searchValue, onSearchChange, wishlistCount = 0,
                 {CATEGORIES.map((category) => (
                   <Link href={categoryHref(category.slug)} key={category.slug} onClick={() => setMobileOpen(false)}>{categoryLabel(category.slug, language)}</Link>
                 ))}
-                <Link href="/#hot-deals" onClick={() => setMobileOpen(false)}>{t.nav.products}</Link>
+                <Link href="/products" onClick={() => setMobileOpen(false)}>{t.nav.products}</Link>
                 <Link href="/#story" onClick={() => setMobileOpen(false)}>{t.nav.story}</Link>
               </nav>
             </div>

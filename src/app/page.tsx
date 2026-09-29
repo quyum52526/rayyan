@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, Search, Truck, X } from "lucide-react";
+import Link from "next/link";
 import CategoryDeckCarousel from "@/components/CategoryDeckCarousel";
 import CategoryShelf from "@/components/CategoryShelf";
 import Hero from "@/components/Hero";
@@ -15,7 +16,7 @@ import { requiresTransactionId, type PaymentMethod } from "@/lib/payment";
 import { cartAddition, useStore } from "@/lib/store";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
 import { CATEGORIES, type CategorySlug } from "@/lib/categories";
-import { isHotDeal, matchesQuery, type Product } from "@/lib/products";
+import { curatedWeeklyPicks, matchesQuery, type Product } from "@/lib/products";
 import { handleProductImageError } from "@/lib/imageFallback";
 import { deliveryFeeFor } from "@/lib/shipping";
 
@@ -42,19 +43,15 @@ export default function Home() {
   const [checkoutPayment, setCheckoutPayment] = useState<PaymentMethod>("cod");
   const [checkoutTransactionId, setCheckoutTransactionId] = useState("");
   const [checkoutError, setCheckoutError] = useState("");
-  // Weekly hot deals drive the top shelf. Until products carry the flag the shelf keeps
-  // showing the whole catalog rather than going blank.
-  const hotDealProducts = useMemo(() => {
-    const flagged = products.filter(isHotDeal);
-    return flagged.length > 0 ? flagged : products;
-  }, [products]);
+  // At most two picks per category, hot deals and best sellers first; the full catalog lives on /products.
+  const weeklyPicks = useMemo(() => curatedWeeklyPicks(products, 2), [products]);
   const filteredProducts = useMemo(() => {
     const allowedCategories = productTabCategories[activeProductTab];
-    return hotDealProducts.filter((product) => {
+    return weeklyPicks.filter((product) => {
       const matchesTab = !allowedCategories || allowedCategories.includes(product.category as CategorySlug);
       return matchesQuery(product, search) && matchesTab;
     });
-  }, [hotDealProducts, search, activeProductTab]);
+  }, [weeklyPicks, search, activeProductTab]);
   // Each category keeps its own full list for the count and the first four for the shelf.
   const categoryShelves = useMemo(() => CATEGORIES.map((category) => {
     const matches = products.filter((product) => product.category === category.slug);
@@ -122,7 +119,7 @@ ${paymentSummary}`);
       <Hero products={products} />
 
       <section className="section categories-section" id="categories"><div className="container">
-        <div className="section-heading"><div><p className="kicker">{t.categories.kicker}</p><h2>{t.categories.heading}</h2></div><a className="view-all" href="#hot-deals">{t.categories.viewAll} <ArrowRight size={15} /></a></div>
+        <div className="section-heading"><div><p className="kicker">{t.categories.kicker}</p><h2>{t.categories.heading}</h2></div><Link className="view-all" href="/products">{t.categories.viewAll} <ArrowRight size={15} /></Link></div>
         <CategoryDeckCarousel products={products} />
       </div></section>
 

@@ -80,6 +80,38 @@ export function productsInCategory(products: Product[], slug: CategorySlug, limi
   return limit === undefined ? matches : matches.slice(0, limit);
 }
 
+/** Percent off the old price; 0 when there is no real markdown. */
+export function discountPercent(product: Pick<Product, "price" | "oldPrice">): number {
+  return product.oldPrice > product.price && product.price > 0 ? (product.oldPrice - product.price) / product.oldPrice : 0;
+}
+
+/**
+ * Ranks products for the homepage picks: sellable items first, then hot deals, then
+ * best sellers (reviews, then rating), then the deepest discount. Ties keep catalog order.
+ */
+function comparePickPriority(a: Product, b: Product): number {
+  return Number(getProductAvailability(b) === "available") - Number(getProductAvailability(a) === "available")
+    || Number(isHotDeal(b)) - Number(isHotDeal(a))
+    || b.reviews - a.reviews
+    || b.rating - a.rating
+    || discountPercent(b) - discountPercent(a);
+}
+
+/**
+ * "This week's best products": the highest-priority products of each category, at most
+ * `perCategory` from any one, so no single category dominates the shelf.
+ */
+export function curatedWeeklyPicks(products: Product[], perCategory = 2): Product[] {
+  const taken = new Map<string, number>();
+  return [...products].sort(comparePickPriority).filter((product) => {
+    const category = resolveCategorySlug(product.category);
+    const count = taken.get(category) ?? 0;
+    if (count >= perCategory) return false;
+    taken.set(category, count + 1);
+    return true;
+  });
+}
+
 /** Name/category text match used by the navbar search and the /search page. */
 export function matchesQuery(product: Product, query: string): boolean {
   const trimmed = query.trim().toLowerCase();

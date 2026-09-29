@@ -58,6 +58,7 @@ type Translation = {
   gallery: { package: string; ingredients: string; video: string; media: string; view: string; playVideo: string; pauseVideo: string; unmute: string; mute: string; muted: string; soundOn: string };
   notFound: { title: string; body: string };
   search: { kicker: string; heading: string; resultLabel: string; emptyTitle: string; emptyBody: string; submit: string; clear: string };
+  allProducts: { kicker: string; heading: string; countLabel: string; allCategories: string; sortLabel: string; sort: { featured: string; priceLow: string; priceHigh: string; discount: string } };
   categoryNames: Record<string, string>;
 };
 
@@ -179,6 +180,10 @@ const translations: Record<Language, Translation> = {
       emptyTitle: "কোনো পণ্য পাওয়া যায়নি", emptyBody: "অন্য শব্দ দিয়ে খুঁজে দেখুন অথবা ক্যাটাগরি থেকে বেছে নিন।",
       submit: "পণ্য খুঁজুন", clear: "সার্চ মুছুন",
     },
+    allProducts: {
+      kicker: "RAYYAN স্টোর", heading: "সব পণ্য", countLabel: "{count}টি পণ্য", allCategories: "সবগুলো", sortLabel: "সাজান",
+      sort: { featured: "জনপ্রিয়", priceLow: "দাম: কম থেকে বেশি", priceHigh: "দাম: বেশি থেকে কম", discount: "সবচেয়ে বেশি ছাড়" },
+    },
     categoryNames: { "গুঁড়া মসলা": "গুঁড়া মসলা", "গোটা মসলা": "গোটা মসলা", "রেডি-টু-কুক": "রেডি-টু-কুক", "প্রিমিয়াম কম্বো": "প্রিমিয়াম কম্বো" },
   },
   en: {
@@ -297,6 +302,10 @@ const translations: Record<Language, Translation> = {
       kicker: "Search", heading: "Search results", resultLabel: "{count} products for “{query}”",
       emptyTitle: "No products found", emptyBody: "Try a different word, or pick a category instead.",
       submit: "Search products", clear: "Clear search",
+    },
+    allProducts: {
+      kicker: "RAYYAN store", heading: "All products", countLabel: "{count} products", allCategories: "All", sortLabel: "Sort by",
+      sort: { featured: "Featured", priceLow: "Price: low to high", priceHigh: "Price: high to low", discount: "Biggest discount" },
     },
     categoryNames: { "গুঁড়া মসলা": "Powder Spices", "গোটা মসলা": "Whole Spices", "রেডি-টু-কুক": "Ready to Cook", "প্রিমিয়াম কম্বো": "Premium Combos" },
   },
