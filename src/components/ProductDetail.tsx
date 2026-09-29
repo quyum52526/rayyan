@@ -6,7 +6,7 @@ import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
 import { categoryHref, resolveCategorySlug } from "@/lib/categories";
-import { defaultVariant, productVariants, type Product } from "@/lib/products";
+import { defaultVariant, getProductAvailability, productVariants, type Product } from "@/lib/products";
 import { cartAddition, useStore } from "@/lib/store";
 import { handleProductImageError } from "@/lib/imageFallback";
 
@@ -22,6 +22,8 @@ export default function ProductDetail({ product }: { product: Product }) {
   const total = selectedVariant.price * quantity;
   const originalTotal = selectedVariant.originalPrice * quantity;
   const title = productTitle(product, language);
+  const availability = getProductAvailability(product);
+  const purchasable = availability === "available";
   const secondaryTitle = language === "en" ? product.bn : product.name;
 
   const tabs = [
@@ -49,7 +51,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           <div className="pdp-price"><strong>{formatPrice(total, language)}</strong>{originalTotal > total && <del>{formatPrice(originalTotal, language)}</del>}{discount > 0 && <span>-{formatNumber(discount, language)}% {t.pdp.off}</span>}</div>
           <div className="pdp-divider" />
           <div className="variant-section"><div className="variant-heading"><b>{t.pdp.weightHeading}</b><span>SKU: {product.sku || `RY-${product.id}01`}</span></div><div className="pdp-variants">{variants.map((variant) => <button type="button" className={variant.size === selectedVariant.size ? "selected" : ""} aria-pressed={variant.size === selectedVariant.size} onClick={() => setSelectedVariant(variant)} key={variant.size || "base"}>{variant.size || t.cart.defaultWeight}</button>)}</div></div>
-          <div className="pdp-buy-row"><div className="pdp-quantity"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button><b>{formatNumber(quantity, language)}</b><button onClick={() => setQuantity(quantity + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button></div><button className="pdp-add-button" onClick={() => { addToCart(cartAddition(product, selectedVariant, quantity)); setCartOpen(true); }}><ShoppingBag size={18} /> {t.pdp.addToCart}</button></div>
+          <div className="pdp-buy-row"><div className="pdp-quantity"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label={t.pdp.decrease}><Minus size={15} /></button><b>{formatNumber(quantity, language)}</b><button onClick={() => setQuantity(quantity + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button></div><button className="pdp-add-button" disabled={!purchasable} onClick={purchasable ? () => { addToCart(cartAddition(product, selectedVariant, quantity)); setCartOpen(true); } : undefined}><ShoppingBag size={18} /> {purchasable ? t.pdp.addToCart : availability === "coming-soon" ? t.card.comingSoon : t.card.outOfStock}</button></div>
           <Link className="pdp-buy-now" href="/checkout">{t.pdp.buyNow} <ArrowRight size={18} /></Link>
           <div className="pdp-delivery"><Truck size={18} /><span><b>{t.pdp.deliveryTitle}</b><small>{t.pdp.deliveryNote}</small></span></div>
           <div className="pdp-trust-row">{t.pdp.trustRow.map((item) => <span key={item}><Check size={14} /> {item}</span>)}</div>

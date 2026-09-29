@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { PaymentMethod } from "@/lib/payment";
-import { defaultVariant, findVariant, normalizeProducts, type Product, type ProductVariant } from "@/lib/products";
+import { defaultVariant, findVariant, getProductAvailability, normalizeProducts, type Product, type ProductVariant } from "@/lib/products";
 import { addDeletedProductId, getDeletedProductIds, getPendingProducts, getStoredProducts, removeDeletedProductId, setPendingProducts, setStoredProducts } from "@/lib/product-storage";
 
 export type OrderStatus = "pending" | "processing" | "delivered" | "cancelled";
@@ -321,14 +321,19 @@ export function StoreProvider({ children, initialProducts = [] }: { children: Re
       }
     },
     // unitPrice and totalPrice are not stored: the cart re-prices each line from the catalog on read.
-    addToCart: ({ productId, variant, quantity }) => setStoredCart((current) => {
+    addToCart: ({ productId, variant, quantity }) => {
+      // Coming-soon and sold-out items can be previewed but never enter the cart, whichever button asked.
+      const product = products.find((item) => item.id === productId);
+      if (product && getProductAvailability(product) !== "available") return;
+      setStoredCart((current) => {
       const id = String(productId);
       const variantId = variant || undefined;
       const count = Number.isFinite(quantity) && quantity >= 1 ? Math.floor(quantity) : 1;
       const existing = current.find((item) => item.productId === id && item.variantId === variantId);
       if (existing) return current.map((item) => item === existing ? { ...item, quantity: item.quantity + count } : item);
       return [...current, { productId: id, ...(variantId ? { variantId } : {}), quantity: count }];
-    }),
+      });
+    },
     removeFromCart: (index) => setStoredCart((current) => {
       let itemIndex = 0;
       return current.flatMap((item) => {

@@ -4,7 +4,7 @@ import { Minus, Plus, ShoppingBag, Star, Truck, X } from "lucide-react";
 import { useState } from "react";
 import ProductGallery from "@/components/ProductGallery";
 import { formatNumber, formatPrice, productTitle, useLanguage } from "@/context/LanguageContext";
-import { defaultVariant, productVariants, type Product } from "@/lib/products";
+import { defaultVariant, getProductAvailability, productVariants, type Product } from "@/lib/products";
 import { cartAddition, type CartAddition } from "@/lib/store";
 
 type ProductQuickViewProps = {
@@ -25,6 +25,9 @@ export default function ProductQuickView({ product, onClose, onAddToCart }: Prod
     ? Math.round((1 - selectedVariant.price / selectedVariant.originalPrice) * 100)
     : 0;
   const title = productTitle(product, language);
+  const availability = getProductAvailability(product);
+  const purchasable = availability === "available";
+  const unavailableLabel = availability === "coming-soon" ? t.card.comingSoon : t.card.outOfStock;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -47,9 +50,13 @@ export default function ProductQuickView({ product, onClose, onAddToCart }: Prod
             })}
           </div>
           <div className="modal-price">
-            <strong>{formatPrice(totalPrice, language)}</strong>
-            {totalOriginalPrice > totalPrice && <del>{formatPrice(totalOriginalPrice, language)}</del>}
-            {discount > 0 && <span>-{formatNumber(discount, language)}% {t.modal.off}</span>}
+            {availability === "coming-soon"
+              ? <span className="product-availability">{unavailableLabel}</span>
+              : <>
+                <strong>{formatPrice(totalPrice, language)}</strong>
+                {purchasable && totalOriginalPrice > totalPrice && <del>{formatPrice(totalOriginalPrice, language)}</del>}
+                {purchasable && discount > 0 && <span>-{formatNumber(discount, language)}% {t.modal.off}</span>}
+              </>}
           </div>
           <div className="quantity-row">
             <div className="quantity">
@@ -57,9 +64,9 @@ export default function ProductQuickView({ product, onClose, onAddToCart }: Prod
               <b>{formatNumber(quantity, language)}</b>
               <button type="button" onClick={() => setQuantity((current) => current + 1)} aria-label={t.pdp.increase}><Plus size={15} /></button>
             </div>
-            <button className="primary-button modal-add" onClick={() => onAddToCart(cartAddition(product, selectedVariant, quantity))}>{t.modal.addToCart} <ShoppingBag size={17} /></button>
+            <button className="primary-button modal-add" onClick={purchasable ? () => onAddToCart(cartAddition(product, selectedVariant, quantity)) : undefined} disabled={!purchasable}>{purchasable ? t.modal.addToCart : unavailableLabel} <ShoppingBag size={17} /></button>
           </div>
-          <div className="modal-note"><Truck size={15} /> {t.modal.deliveryNote} <span>{t.modal.inStock}</span></div>
+          <div className="modal-note"><Truck size={15} /> {t.modal.deliveryNote} {purchasable && <span>{t.modal.inStock}</span>}</div>
         </div>
       </div>
     </div>

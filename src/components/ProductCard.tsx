@@ -4,6 +4,7 @@ import { Eye, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { formatNumber, formatPrice, localizeCategory, productTitle, useLanguage } from "@/context/LanguageContext";
 import { handleProductImageError } from "@/lib/imageFallback";
+import { getProductAvailability } from "@/lib/products";
 
 export type CardProduct = {
   id: number;
@@ -12,6 +13,8 @@ export type CardProduct = {
   bn: string;
   price: number;
   oldPrice: number;
+  stock: number;
+  comingSoon?: boolean;
   category: string;
   image: string;
   image2?: string;
@@ -37,7 +40,10 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
   const { language, t } = useLanguage();
   const title = productTitle(product, language);
   const secondaryTitle = language === "en" ? product.bn : product.name;
-  const discountPercent = getDiscountPercent(product.price, product.oldPrice);
+  const availability = getProductAvailability(product);
+  const purchasable = availability === "available";
+  const unavailableLabel = availability === "coming-soon" ? t.card.comingSoon : t.card.outOfStock;
+  const discountPercent = purchasable ? getDiscountPercent(product.price, product.oldPrice) : null;
   const discount = discountPercent === null ? null : `${formatNumber(discountPercent, language)}% ${t.card.off}`;
 
   return (
@@ -49,7 +55,7 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
           {discount && <span className={`product-discount ${product.tag === "ফ্রেশ" ? "fresh" : ""}`}>{discount}</span>}
         </Link>
         <div className="product-quick-actions">
-          <button className="quick-action quick-action-cart" onClick={onAddToCart} aria-label={t.card.cartAction}><ShoppingBag size={16} /></button>
+          <button className="quick-action quick-action-cart" onClick={purchasable ? onAddToCart : undefined} disabled={!purchasable} aria-label={purchasable ? t.card.cartAction : unavailableLabel}><ShoppingBag size={16} /></button>
           <button className={`quick-action quick-action-wishlist ${liked ? "liked" : ""}`} onClick={onToggleWishlist} aria-label={t.card.wishlist}><Heart size={16} fill={liked ? "currentColor" : "none"} /></button>
         </div>
       </div>
@@ -59,12 +65,14 @@ export default function ProductCard({ product, liked, onToggleWishlist, onAddToC
           <h3>{title}</h3>
           <p>{secondaryTitle}</p>
           <div className="product-bottom product-bottom-precision">
-            <div><strong>{formatPrice(product.price, language)}</strong>{discount && <del>{formatPrice(product.oldPrice, language)}</del>}</div>
+            {availability === "coming-soon"
+              ? <span className="product-availability">{unavailableLabel}</span>
+              : <div><strong>{formatPrice(product.price, language)}</strong>{discount && <del>{formatPrice(product.oldPrice, language)}</del>}{!purchasable && <span className="product-availability">{unavailableLabel}</span>}</div>}
           </div>
         </div>
       </Link>
         <div className="product-card-actions">
-          <button className="product-add-button" onClick={onAddToCart}><ShoppingBag size={16} /> {t.card.addToCart}</button>
+          <button className="product-add-button" onClick={purchasable ? onAddToCart : undefined} disabled={!purchasable}><ShoppingBag size={16} /> {purchasable ? t.card.addToCart : unavailableLabel}</button>
           <button className="product-view-button" onClick={(event) => { event.stopPropagation(); onQuickView(); }} aria-label={t.card.quickView}><Eye size={18} /></button>
         </div>
     </article>

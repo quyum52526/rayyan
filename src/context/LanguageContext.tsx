@@ -34,7 +34,7 @@ type Translation = {
     paymentLabel: string; paymentMethods: string[]; secureNote: string;
     legalLinks: FooterLink[]; packedIn: string;
   };
-  card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string };
+  card: { kicker: string; addToCart: string; quickView: string; wishlist: string; cartAction: string; ingredientsAlt: string; off: string; comingSoon: string; outOfStock: string };
   pdp: {
     back: string; home: string; cart: string; reviews: string; inStock: string; weightHeading: string;
     decrease: string; increase: string; addToCart: string; buyNow: string; deliveryTitle: string; deliveryNote: string;
@@ -132,7 +132,7 @@ const translations: Record<Language, Translation> = {
       ],
       packedIn: "✦ ঢাকায় প্যাক করা",
     },
-    card: { kicker: "RAYYAN GOURMET", addToCart: "কার্ট-এ যোগ করুন", quickView: "দ্রুত দেখুন", wishlist: "উইশলিস্টে যোগ করুন", cartAction: "কার্টে যোগ করুন", ingredientsAlt: "উপকরণ", off: "OFF" },
+    card: { kicker: "RAYYAN GOURMET", addToCart: "কার্ট-এ যোগ করুন", quickView: "দ্রুত দেখুন", wishlist: "উইশলিস্টে যোগ করুন", cartAction: "কার্টে যোগ করুন", ingredientsAlt: "উপকরণ", off: "OFF", comingSoon: "শীঘ্রই আসছে", outOfStock: "স্টক শেষ" },
     pdp: {
       back: "শপিং চালিয়ে যান", home: "হোম", cart: "কার্ট", reviews: "রিভিউ", inStock: "স্টকে আছে",
       weightHeading: "ওজন / সাইজ",
@@ -251,7 +251,7 @@ const translations: Record<Language, Translation> = {
       ],
       packedIn: "✦ Packed in Dhaka",
     },
-    card: { kicker: "RAYYAN GOURMET", addToCart: "Add to cart", quickView: "Quick view", wishlist: "Add to wishlist", cartAction: "Add to cart", ingredientsAlt: "ingredients", off: "OFF" },
+    card: { kicker: "RAYYAN GOURMET", addToCart: "Add to cart", quickView: "Quick view", wishlist: "Add to wishlist", cartAction: "Add to cart", ingredientsAlt: "ingredients", off: "OFF", comingSoon: "Coming Soon", outOfStock: "Stock Out" },
     pdp: {
       back: "Continue shopping", home: "Home", cart: "Cart", reviews: "reviews", inStock: "In stock",
       weightHeading: "Weight / size",

@@ -16,6 +16,8 @@ export type Product = {
   /** Pack sizes sold at their own prices. Without it the product sells as one pack at `price`. */
   variants?: ProductVariant[];
   stock: number;
+  /** Listed but not yet sellable. Unpriced (price <= 0) products are treated the same way. */
+  comingSoon?: boolean;
   rating: number;
   reviews: number;
   /**
@@ -34,6 +36,15 @@ export type Product = {
   nutrition?: string;
   storageInstructions?: string;
 };
+
+export type ProductAvailability = "available" | "coming-soon" | "out-of-stock";
+
+/** Whether a product can be bought: flagged or unpriced items are coming soon, priced items with no stock are sold out. */
+export function getProductAvailability(product: Pick<Product, "price" | "stock" | "comingSoon">): ProductAvailability {
+  if (product.comingSoon === true || !(product.price > 0)) return "coming-soon";
+  if (product.stock <= 0) return "out-of-stock";
+  return "available";
+}
 
 /** A product whose category is guaranteed to be one of the six category slugs. */
 export type NormalizedProduct = Product & { category: CategorySlug };
