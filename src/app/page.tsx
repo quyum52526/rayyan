@@ -42,12 +42,8 @@ export default function Home() {
   const [checkoutPayment, setCheckoutPayment] = useState<PaymentMethod>("cod");
   const [checkoutTransactionId, setCheckoutTransactionId] = useState("");
   const [checkoutError, setCheckoutError] = useState("");
-  // Weekly hot deals drive the top shelf. Until products carry the flag the shelf keeps
-  // showing the whole catalog rather than going blank.
-  const hotDealProducts = useMemo(() => {
-    const flagged = products.filter(isHotDeal);
-    return flagged.length > 0 ? flagged : products;
-  }, [products]);
+  // The top shelf is exactly the starred weekly hot deals — no fallback to the whole catalog.
+  const hotDealProducts = useMemo(() => products.filter(isHotDeal), [products]);
   const filteredProducts = useMemo(() => {
     const allowedCategories = productTabCategories[activeProductTab];
     return hotDealProducts.filter((product) => {
